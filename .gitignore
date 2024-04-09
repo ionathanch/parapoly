@@ -1,0 +1,5 @@
+*.fls
+*.synctex.gz
+comment.cut
+.vscode/
+parapoly*

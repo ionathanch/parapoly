@@ -1,0 +1,1298 @@
+\documentclass[sigplan,screen,nonacm,balance=false]{acmart}
+\settopmatter{printccs=false,printacmref=false,printfolios=true}
+\let\Bbbk\relax
+
+\usepackage{titlesec}
+\usepackage{abstract}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{xspace}
+\usepackage{tikz-cd}
+\usepackage{mathtools}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage[capitalize, noabbrev]{cleveref}
+
+\titlelabel{\thetitle.\quad}
+\theoremstyle{plain}
+\setcitestyle{acmnumeric,nosort,curly}
+\allowdisplaybreaks
+
+\DeclarePairedDelimiter{\set}{\{}{\}}
+\DeclarePairedDelimiter{\pair}{\langle}{\rangle}
+\DeclarePairedDelimiter{\interp}{\llbracket}{\rrbracket}
+
+% ensure word spacing after Latin abbreviations, not sentence spacing
+\newcommand{\ie}{i.e.\@\xspace}
+\newcommand{\eg}{e.g.\@\xspace}
+
+% object language keywords
+\newcommand{\Real}{\mathtt{Real}}
+\newcommand{\Complex}{\mathtt{Complex}}
+\newcommand{\Int}{\mathtt{Int}}
+\newcommand{\Bool}{\mathtt{Bool}}
+\newcommand{\true}{\mathtt{true}}
+\newcommand{\false}{\mathtt{false}}
+\newcommand{\ifte}[3]{\mathtt{if} \; #1 \; \mathtt{then} \; #2 \; \mathtt{else} \; #3}
+\newcommand{\lettype}{\mathtt{lettype}}
+\newcommand{\with}{\mathtt{with}}
+\newcommand{\lettypein}[3]{\mathtt{lettype} \; #1 = #2 \; \mathtt{in} \; #3}
+\newcommand{\letwith}[6]{\mathtt{lettype} \; #1 = #2 \; \mathtt{with} \; #3 : #4 = #5 \; \mathtt{in} \; #6}
+\newcommand{\Y}{\mathtt{Y}}
+\newcommand{\abstractin}[4]{\mathtt{abstract} \; #1, #2 = #3 \; \mathtt{in} \; #4}
+
+% these are definitely metafunctions
+\newcommand{\dom}[1]{\mathsf{dom}\ifblank{#1}{\;}{#1}}
+\newcommand{\FV}{\mathsf{F}}
+\newcommand{\ifm}{\mathsf{if}}
+\newcommand{\thenm}{\mathsf{then}}
+\newcommand{\elsem}{\mathsf{else}}
+\newcommand{\iftem}[3]{\mathsf{if} \; #1 \; \mathsf{then} \; #2 \; \mathsf{else} \; #3}
+
+% if this is typeset as a metaobject, should C, T, V, K_\omega be too?
+% for now, typeset them like other metavariables
+\newcommand{\CS}{\mathit{CS}}
+\newcommand{\IA}{\mathit{IA}}
+\newcommand{\IK}{\mathit{IK}}
+
+% it seems wrong to typset these elsewise...
+\newcommand{\Rel}{\mathsf{Rel}}
+\newcommand{\Id}{\mathsf{I}}
+\newcommand{\Rep}{\mathsf{Rep}}
+\newcommand{\REP}{\mathsf{REP}}
+\newcommand{\IP}{\mathsf{IP}}
+\newcommand{\SET}{\mathsf{SET}}
+\newcommand{\para}{\mathsf{parametric}}
+\newcommand{\Krel}{\mathsf{Krel}}
+
+% some script metavariables for convenience
+\newcommand{\scrs}{\mathscr{s}}
+\newcommand{\scrf}{\mathscr{f}}
+\newcommand{\scrp}{\mathscr{p}}
+
+\renewcommand\acksname{Acknowledgement}
+
+\title{\vspace{0.5\baselineskip}Types, Abstraction and Parametric Polymorphism}
+\titlenote{Work supported by National Science Foundation Grant MCS-8017577.}
+% \subtitle{\textit{Invited Paper}}
+\date{1983}
+\author{John C. Reynolds}
+\affiliation{
+  \institution{Syracuse University}
+  \city{Syracuse}
+  \state{New York}
+  \country{USA}
+}
+\author{\null\hfill\textit{Invited Paper}} % hack bc subtitle is ugly
+\editor{R.E.A. Mason}
+\acmConference[IFIP 1983]{INFORMATION PROCESSING}{September 19--23, 1983}{Paris, France}
+\startPage{513}
+
+% only for the first page
+\fancypagestyle{first}{
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \fancyhead[L]{
+    \footnotesize 
+    INFORMATION PROCESSING 83, R.E.A. Mason (ed.) \\
+    Elsevier Science Publishers B.V. (North-Holland) \\
+    \copyright ~ IFIP, 1983
+  }
+}
+
+\begin{document}
+
+\fancyhf{}
+\fancyhead[RO]{\thepage}
+\fancyhead[LE]{\thepage}
+\fancyhead[CE]{\textit{J.C. Reynolds}}
+\fancyhead[CO]{\textit{Types, Abstraction and Parametric Polymorphism}}
+
+\maketitle
+\thispagestyle{first}
+
+\begin{abstract}
+  We explore the thesis that type structure is a syntactic discipline for maintaining levels of abstraction.
+  Traditionally, this view has been formalized algebraically, but the algebraic approach fails to encompass higher-order functions.
+  For this purpose, it is necessary to generalize homomorphic functions to relations;
+  the result is an ``abstraction'' theorem that is applicable to the typed lambda calculus and various extensions, including user-defined types.
+
+  Finally, we consider polymorphic functions, and show that the abstraction theorem captures Strachey's concept of parametric, as opposed to ad hoc, polymorphism.
+\end{abstract}
+
+\section{A Fable}
+
+Once upon a time, there was a university with a peculiar tenure policy.
+All faculty were tenured, and could only be dismissed for moral turpitude.
+What was peculiar was the definition of moral turpitude:
+making a false statement in class.
+Needless to say, the university did not teach computer science.
+However, it had a renowned department of mathematics.
+
+One semester, there was such a large enrollment in complex variables that two sections were scheduled.
+In one section, Professor Descartes announced that a complex number was an ordered pair of reals, and that two complex numbers were equal when their corresponding components were equal.
+He went on to explain how to convert reals into complex numbers, what ``$i$'' was, how to add, multiply, and conjugate complex numbers, and how to find their magnitude.
+
+In the other section, Professor Bessel announced that a complex number was an ordered pair of reals the first of which was nonnegative, and that two complex numbers were equal if their first components were equal and either the first components were zero or the second components differed by a multiple of $2\pi$.
+He then told an entirely different story about converting reals, ``$i$'', addition, multiplication, conjugation, and magnitude.
+
+Then, after their first classes, an unfortunate mistake in the registrar's office caused the two sections to be interchanged.
+Despite this, neither Descartes nor Bessel ever committed moral turpitude, even though each was judged by the other's definitions.
+The reason was that they both had an intuitive understanding of type.
+Having defined complex numbers and the primitive operations upon them, thereafter they spoke at a level of abstraction that encompassed both of their definitions.
+
+The moral of the fable is that:
+
+\begin{quote}
+  Type structure is a syntactic discipline for enforcing levels of abstraction.
+\end{quote}
+
+For instance, when Descartes introduced the complex plane, this discipline prevented him from saying 
+$\Complex = \Real \times \Real$,
+which would have contradicted Bessel's definition.
+Instead, he defined the mapping
+$f : \Real \times \Real \to \Complex$ such that $f(x, y) = x + i \times y$,
+and proved that this mapping is a bijection.
+
+More subtly, although both lecturers introduced the set $\Int^*$ of sequences of integers, and spoke of sets such as $\Int^* + \Complex$, $\Int^* \times \Complex$ and $\Int^* \to \Complex$, they never mentioned $\Int^* \cup \Complex$ or $\Int^* \cap \Complex$.
+Intuitively, they thought of sequences of integers and complex numbers as entities so immiscible that the union and intersection of $\Int^*$ and $\Complex$ are undefined.
+
+More precisely, there is not such thing as \emph{the} set of complex numbers.
+Instead, the type ``$\Complex$'' denotes an abstraction that can be realized or represented by a variety of sets, with varying unions and intersections with $\Int^*$ or $\Real \times \Real$.
+
+A second moral of our fable is that types are not limited to computation.
+Thus (in the absence of recursion) they should be explicable without invoking constructs, such as Scott domains, that are peculiar to the theory of computation.
+Descartes and Bessel would be baffled by an explanation of their intuition that introduced undefined or approximate complex numbers.
+
+What computation has done is to create the necessity of formalize type disciplines, to the point where they can be enforced mechanically.
+The idea that type disciplines enforce abstraction clearly underlies such languages as CLU~\citep{CLU} and ALPHARD~\citep{Alphard}, and such papers as~\citep{not-sets} and~\citep{polymorphism}.
+More recently, however, many formalizations have treated types as predicates or other entities denoting specific subsets of some universe of values~\citep{polytype,retract,applicative,repindep,polydata}.
+This work has stemmed from Scott's discovery of how to construct sufficiently rich universes without encountering Russell's paradox.
+But it obscures the idea of abstraction, \eg if types denote specific subsets of a universe then their unions and intersections are well-defined.
+
+The major exception to this trend is the algebraic view of types~\citep{ADTs-GH,ADTs-GTW,ADTs-Kapur}, in which a type, with its primitive operations, is an abstraction over a variety of algebras.
+Roughly speaking, type discipline is the limitation of language to terms of a free algebra.
+Each term is uniquely interpretable within every algebra of the variety, and its interpretations are related by the homomorphisms between the algebras.
+
+Unfortunately, the algebraic approach is intrinsically first-order; if primitive operations are to be operations of an algebra they cannot be higher-order functions on the carrier of the algebra.
+It might be possible to extend algebra to encompass higher-order functions if homomorphic functions between carriers induced higher-order functions between functions on these carriers. Moreover, the basic homomorphic equation
+%
+\begin{equation*}
+  \rho(f(x_1, \dots, x_n)) = f'(\rho x_1, \dots, \rho x_n)
+\end{equation*}
+%
+shows how a homomorphism $\rho$ from $A$ to $A'$ induces a relation between functions $f \in |A|^n \to |A|$ and $f' \in |A'|^n \to |A'|$.
+However, this relation is usually not a function.
+
+The way out of this impasse is to generalize homomorphisms from functions to relations.
+
+\section{An Extended Typed Lambda Calculus}
+
+To characterize abstraction in a setting that permits higher-order functions, we will define an extension of the explicitly typed lambda calculus, which constant types, products, and generic conditional expression, and show that its classical set-theoretic semantics obeys an ``abstraction theorem'' formalizing our thesis that type structure preserves abstraction.
+
+The expressions of this language are divided into type expressions and ordinary expressions.
+To define the syntax of type expressions, we assume that we are given
+
+\begin{itemize}[noitemsep,leftmargin=3em]
+  \item[$C$:] A set of \emph{type constants}, containing at least \\
+    the type constant $\Bool$.
+  \item[$T$:] An infinite countable set of \emph{type variables}.
+\end{itemize}
+
+Then $\Omega$, the set of \emph{type expressions}, is the least set such that
+%
+\begin{align}
+  \tag{$\Omega 1$}
+  &\textit{If } \kappa \in C \textit{ then } \kappa \in \Omega, \\
+  \tag{$\Omega 2$}
+  &\textit{If } \tau \in T \textit{ then } \tau \in \Omega, \\
+  \tag{$\Omega 3$}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } \omega \to \omega' \in \Omega, \\
+  \tag{$\Omega 4$}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } \omega \times \omega' \in \Omega.
+\end{align}
+%
+We also distinguish $\Omega_C$, the subset of $\Omega$ consisting of fixed type expressions, \ie type expressions that do not contain occurrences of members of $T$.
+
+Next, we assume that we are given
+
+\begin{itemize}[noitemsep,leftmargin=3em]
+  \item[$V$:] An infinite countable set of \emph{ordinary} variables.
+\end{itemize}
+
+Then a \emph{type assignment} is a function from some finite subset of $V$ to $\Omega$.
+We write
+%
+\begin{equation*}
+  \Omega^* = \set{\pi \mid \pi \in F \to \Omega \textit{ for some finite } F \subseteq V}
+\end{equation*}
+%
+for the set of type assignments.
+
+To define the syntax of ordinary expressions, we assume that, for each $\omega \in \Omega_C$, we are given
+
+\begin{itemize}[noitemsep,leftmargin=3em]
+  \item[$K_\omega$:] A set of \emph{ordinary constants} of fixed type $\omega$.
+\end{itemize}
+
+Then we define the family
+%
+\begin{equation*}
+  \pair{E_{\pi \omega} \mid \pi \in \Omega^*, \omega \in \Omega}
+\end{equation*}
+%
+of sets, in which $E_{\pi \omega}$ is the set of those ordinary expressions whose free ordinary variables belong to the domain of $\pi$ and which take on the type $\omega$ under the assignment of types to variables given by $\pi$.
+This is the least family of sets satisfying
+%
+\begin{align}
+  \tag{Ea}
+  \textit{If }& k \in K_\omega \textit{ then } k \in E_{\pi \omega},\\
+  \tag{Eb}
+  \textit{If }& v \in \dom{} \pi \textit{ then } v \in E_{\pi, \pi v}, \\
+  \tag{Ec}
+  \textit{If }& e_1 \in E_{\pi, \omega \to \omega'} \textit{ and } e_2 \in E_{\pi \omega} \textit{ then }  e_1(e_2) \in E_{\pi \omega'},\\
+  \tag{Ed}
+  \textit{If }& e \in E_{[\pi \mid v : \omega], \omega'} \textit{ then } \lambda v : \omega . e \in E_{\pi, \omega \to \omega'}, \\
+  \tag{Ee}
+  \textit{If }& e \in E_{\pi \omega} \textit{ and } e' \in E_{\pi \omega'} \textit{ then } \pair{e, e'} \in E_{\pi, \omega \times \omega'}, \\
+  \tag{Ef}
+  \textit{If }& e \in E_{\pi, \omega \times \omega'} \textit{ then } e.1 \in E_{\pi \omega} \textit{ and } e.2 \in E_{\pi \omega'}, \\
+  \tag{Eg}
+  \textit{If }& b \in E_{\pi, \Bool} \textit{ and } e, e' \in E_{\pi \omega} \textit{ then } \\
+  \nonumber
+  & \ifte{b}{e}{e'} \in E_{\pi \omega}.
+\end{align}
+%
+Here $\dom{} \pi$ denotes the domain of $\pi$, and $[\pi \mid v : \omega]$ denotes the function with domain $\dom{} \pi \cup \set{v}$ such that $[\pi \mid v : \omega] v' = \iftem{v = v'}{\omega}{\pi v'}$.
+% That can't be right. This should be a meta if/then/else, not an object one.
+
+The presence of $\omega$ in $\lambda v : \omega . e$ is what we mean by ``explicit'' typing;
+it assures that, under a given type assignment $\pi$, every ordinary expression has a unique type, \ie $E_{\pi \omega}$ and $E_{\pi \omega'}$ are disjoint when $\omega \neq \omega'$.
+
+To specify the semantics of type expressions, we assume that we are given
+
+\begin{itemize}[noitemsep,leftmargin=3em]
+  \item[$\CS$:] A mapping from $C$ to the class of sets, \\
+  such that $\CS(\Bool) = \set{\true, \false}$,
+\end{itemize}
+%
+and we define a \emph{set assignment} to be a mapping from $T$ to the class of sets.
+Then we use $\#$ to denote the following extension of set assignments from type variables to type expressions:
+If $S$ is a set assignment then $S^\#$ is the mapping from $\Omega$ to the class of sets such that
+%
+\begin{align}
+  \tag{S1}
+  &\textit{If } \kappa \in C \textit{ then } S^\# \kappa = \CS \; \kappa \\
+  \tag{S2}
+  &\textit{If } \tau \in T \textit{ then } S^\# \tau = S \; \tau, \\
+  \tag{S3}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } S^\# (\omega \to \omega') = S^\# \omega \to S^\# \omega', \\
+  \tag{S4}\label{S4}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } S^\#(\omega \times \omega') = S^\# \omega \times S^\# \omega',
+\end{align}
+%
+where $s \to s'$ denotes the set of all functions from $s$ to $s'$ and $s \times s'$ denotes the set of pairs $\pair{x, x'}$ such that $x \in s$ and $x' \in s'$.
+Then the set $S^\# \omega$ is the meaning of the type expression $\omega$ under the set assignment $S$.
+Note that, when $\omega \in \Omega_C$, $S^\# \omega$ is independent of the set assignment $S$.
+
+We use $*$ to denote a further extension from type expressions of type assignments:
+If $S$ is a set assignment then $S^{\#*}$ is the mapping from $\Omega^*$ to the class of sets such that
+%
+\begin{equation}\tag{S*}\label{S-star}
+  S^{\#*} = \prod_{v \in \dom{} \pi}^{} S^\#(\pi v).
+\end{equation}
+%
+Then $S^{\#*} \pi$ is the set of environments appropriate to $\pi$ and $S$.
+
+A conventional semantics for ordinary expressions would be obtained by fixing some set assignment $S$ and defining a family of semantic functions from $E_{\pi \omega}$ to $S^{\#*} \pi \to S^{\#} \omega$.
+However, to capture abstraction properties we will need to relation the meanings of an expression under different set assignments.
+For this reason, we will treat set assignments as explicit parameters of the semantic functions.
+Specifically, for each $\pi \in \Omega^*$ and $\omega \in \Omega$ we will define a semantic function
+%
+\begin{equation*}
+  \mu_{\pi \omega} \in E_{\pi \omega} \to \prod_{S \in \mathcal{S}} (S^{\#*} \pi \to S^\# \omega),
+\end{equation*}
+%
+where $\mathcal{S}$ denotes the class of all set assignments.
+
+We assume we are given, for each $\omega \in \Omega_{C}$, a function
+%
+\begin{equation*}
+  \alpha_\omega \in K_\omega \to S^\# \omega
+\end{equation*}
+%
+providing meanings (independent of $S$) to the ordinary constants of type $\omega$.
+Then the semantic functions are defined by
+%
+\begin{align}
+  \tag{Ma}
+  \textit{If } & k \in K_\omega \textit{ then } \mu_{\pi \omega} \interp{k} \; S \; \eta = \alpha_\omega \; k, \\
+  \tag{Mb}
+  \textit{If } & v \in \dom{} \pi \textit{ then } \mu_{\pi, \pi v} \interp{v} \; S \; \eta = \eta \; v, \\
+  \tag{Mc}
+  \textit{If } & e_1 \in E_{\pi, \omega \to \omega'} \textit{ and } e_2 \in E_{\pi \omega} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi \omega'} \interp{e_1(e_2)} \; S \; \eta = \mu_{\pi, \omega \to \omega'} \interp{e_1} \; S \; \eta \; (\mu_{\pi \omega} \interp{e_2} \; S \; \eta), \\
+  \tag{Md}
+  \textit{If } & e \in E_{[\pi \mid v : \omega], \omega'} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi, \omega \to \omega'} \interp{\lambda v : \omega . e} \; S \; \eta = f \\
+  \nonumber
+  & \textit{where } f \in S^\# \omega \to S^\# \omega' \textit{ is such that } \\
+  \nonumber
+  & f \; x = \mu_{[\pi \mid v : \omega], \omega'} \interp{e} \; S \; [\eta \mid v : x], \\
+  \tag{Me}
+  \textit{If } & e \in E_{\pi \omega} \textit{ and } e' \in E_{\pi \omega'} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi, \omega \times \omega'} \interp{\pair{e, e'}} \; S \; \eta = \pair{\mu_{\pi, \omega} \interp{e} \; S \; \eta, \mu_{\pi, \omega'} \interp{e'} \; S \; \eta}, \\
+  \tag{Mf}
+  \textit{If } & e \in E_{\pi, \omega \times \omega'} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi \omega} \interp{e.1} \; S \; \eta = [\mu_{\pi, \omega \times \omega'} \interp{e} \; S \; \eta]_1 \\
+  \nonumber
+  & \mu_{\pi \omega} \interp{e.2} \; S \; \eta = [\mu_{\pi, \omega \times \omega'} \interp{e} \; S \; \eta]_2, \\
+  \tag{Mg}
+  \textit{If } & b \in E_{\pi, \Bool} \textit{ and } e, e' \in E_{\pi \omega} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi \omega} \interp{\ifte{b}{e}{e'}} \; S \; \eta = \\
+  \nonumber
+  & \ifm \; \mu_{\pi, \Bool}\interp{b} \; S \; \eta = \true \\
+  \nonumber
+  & \thenm \; \mu_{\pi, \omega} \interp{e} \; S \; \eta \\
+  \nonumber
+  & \elsem \; \mu_{\pi, \omega} \interp{e'} \; S \; \eta.
+\end{align}
+
+\section{The Abstraction Theorem}
+
+We now want to formulate an abstraction theorem that connects the meanings of an ordinary expression under different set assignments.
+The underlying idea is that the meanings of an expression in ``related'' environments will be ``related'' values.
+But here ``related'' must denote a different relation for each type expression and type assignment.
+Moreover, while the relation for each type variable is arbitrary, the relations for compound type expressions and type assignments must be induced in a specific way.
+In other words, we must specify how an assignment of relations to type variables is extended to type expressions and type assignments.
+
+This can be formalized by defining a ``relation semantics'' for type expressions that parallels their set-theoretic semantics.
+For sets $s_1$ and $s_2$, we introduce the set
+%
+\begin{equation*}
+  \Rel(s_1, s_2) = \set{r \mid r \subseteq s_1 \times s_2}
+\end{equation*}
+%
+of binary relations between $s_1$ and $s_2$, and we write
+%
+\begin{equation*}
+  \Id(s) = \set{\pair{x, x} \mid x \in s} \in \Rel(s, s)
+\end{equation*}
+%
+for the identity relation on a set $s$.
+For $r \in \Rel(s_1, s_2)$ $r' \in \Rel(s'_1, s'_2)$, we write $r \to r'$ for the relation in $\Rel(s_1 \to s'_1, s_2 \to s'_2)$ such that
+%
+\begin{equation*}
+  \pair{f_1, f_2} \in r \to r' \textit{ iff } (\forall \pair{x_1, x_2} \in r) \; \pair{f_1 \; x_2, f_2 \; x_2} \in r',
+\end{equation*}
+%
+and $r \times r'$ for the relation in $\Rel(s_1 \times s'_1, s_2 \times s'_2)$ such that
+%
+\begin{equation*}
+  \pair{\pair{x_1, x'_1}, \pair{x_2, x'_2}} \in r \times r' \textit{ iff } \pair{x_1, x_2} \in r \textit{ and } \pair{x'_1, x'_2} \in r'.
+\end{equation*}
+%
+In other words, functions are related if they map related arguments into related results, and pairs are related if their corresponding components are related.
+
+For set assignments $S_1$ and $S_2$, a member of
+%
+\begin{equation*}
+  \prod_{\tau \in T} \Rel(S_1 \tau, S_2 \tau)
+\end{equation*}
+%
+is called a (binary) \emph{relation assignment} between $S_1$ and $S_2$.
+Having defined $\to$ and $\times$ for relations we can extend relation assignments from $T$ to $\Omega$ and $\Omega^*$ in essentially the same way as we extended set assignments.
+If $R$ is a relation assignment between $S_1$ and $S_2$ then
+%
+\begin{equation*}
+  R^\# \in \prod_{\omega \in \Omega} \Rel(S_1^\# \omega, S_2^\# \omega)
+\end{equation*}
+%
+is such that
+%
+\begin{align}
+  \tag{R1}
+  &\textit{If } \kappa \in C  \textit{ then } R^\# \; \kappa = \Id(\CS \; \kappa), \\
+  \tag{R2}
+  &\textit{If } \tau \in T  \textit{ then } R^\# \; \tau = R \; \tau, \\
+  \tag{R3}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } R^\#(\omega \to \omega') = R^\# \omega \to R^\# \omega', \\
+  \tag{R4}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } R^\#(\omega \times \omega') = R^\# \omega \times R^\# \omega',
+\end{align}
+%
+and
+%
+\begin{equation*}
+  R^{\#*} \in \prod_{\pi \in \Omega^*} \Rel(S_1^{\#*} \pi, S_2^{\#*} \pi)
+\end{equation*}
+%
+is such that
+%
+\begin{equation}
+  \tag{R*}
+  \pair{\eta_1, \eta_2} \in R^{\#*} \pi \textit{ iff } (\forall v \in \dom{} \pi) \; \pair{\eta_1 v, \eta_2 v} \in R^\#(\pi v).
+\end{equation}
+
+It is easily seen that $\to$ and $\times$ preserve identity relations.
+Thus we have the
+
+\newtheorem*{IEL}{Identity Extension Lemma}
+\begin{IEL}
+  Suppose $\IA$ is a relation assignment such that $\IA \; \tau = \Id(S \; \tau)$ for all $\tau \in T_0 \subseteq T$. Then
+  \begin{equation*}
+    \IA^\# \omega = \Id(S^\# \omega) \textit{ for all } \omega \textit{ such that } \FV(\omega) \subseteq T_0,
+  \end{equation*}
+  and
+  \begin{equation*}
+    \IA^{\#*} \pi = \Id(S^{\#*} \pi) \textit{ for all } \pi \textit{ such that } (\forall v \in \dom{} \pi) \; \FV(\pi v) \subseteq T_0.
+  \end{equation*}
+\end{IEL}
+
+Here $\FV(\omega)$ denotes the set of (free) variables occurring in $\omega$.
+
+Finally, we can state the
+
+\newtheorem*{abstraction}{Abstraction Theorem}
+\begin{abstraction}
+  Let $R$ be a relation assignment between set assignments $S_1$ and $S_2$.
+  For all $\pi \in \Omega^*$, $\omega \in \Omega$, $e \in E_{\pi \omega}$, and $\pair{\eta_1, \eta_2} \in R^{\#*} \pi$,
+  \begin{equation*}
+    \pair{\mu_{\pi \omega} \interp{e} \; S_1 \; \eta_1, \mu_{\pi \omega} \interp{e} \; S_2 \; \eta_2} \in R^\# \omega.
+  \end{equation*}
+\end{abstraction}
+
+In essence, the semantics of any expression maps related environments into related values.
+For the case where $e$ is a constant, this theorem depends upon the fact that, by the identity extension lemma with $T_0$ empty, $R^\# \omega$ is an identity relation whenever $\omega \in \Omega_C$.
+The remainder of the proof is by structural induction on the syntax of ordinary expressions.
+
+The abstraction theorem is closely related to Proposition 1 in \citep{definability}.
+This relationship will be discussed in Section 9.
+
+\section{Type Definition} \label{sec:type-def}
+
+Several programming languages, of which CLU~\citep{CLU} is perhaps the earliest, permit one to introduce a new type by defining its representation in terms of builtin or previously defined types and defining its primitive operations in terms of procedures that act upon the representation.
+Within the scope of such a definition, the new type is \emph{opaque}, \ie the meaning of the scope is an abstraction over appropriately related definitions of the type.
+
+In this section, we extend our illustrative language to prove this kind of type definition, and derive a consequence of the abstraction theorem that formalizes type opacity.
+
+First, we introduce the notion of type substitution.
+For $\tau \in T$ and $\omega, \omega' \in \Omega$, we write $\omega'/\tau \to \omega$ to denote the type expression obtained from $\omega'$ by substitution $\omega$ for all (free) occurrences of $\tau$, and for $\pi \in \Omega^*$ we write $\pi/\tau \to \omega$ to denote the type assignment such that $(\pi/\tau \to \omega) \; v = (\pi \; v)/\tau \to \omega$ for all $v \in \dom{} \pi$.
+
+Since the definitions of $\#$ and $*$ are algebraic in nature, it is easy to show that
+%
+\begin{align*}
+  S^\#(\omega'/\tau \to \omega) &= [S \mid \tau : S^\# \omega]^\# \omega', \\
+  S^{\#*}(\pi/\tau \to \omega) &= [S \mid \tau : S^\# \omega]^{\#*} \pi, \\
+  R^\#(\omega'/\tau \to \omega) &= [R \mid \tau : R^\# \omega]^\# \omega', \\
+  R^{\#*}(\pi/\tau \to \omega) &= [R \mid \tau : R^\# \omega]^{\#*} \pi.
+\end{align*}
+%
+Second, for $\pi \in \Omega^*$ and $\tau \in T$, we define
+%
+\begin{equation*}
+  \pi - \tau = \pi \upharpoonleft \set{v \mid v \in \dom{} \pi \textit{ and } \tau \notin \FV(\pi v)}
+\end{equation*}
+%
+where $\FV(\pi v)$ denotes the set of type variables occurring (free) in the type expression $\pi v$, and $\pi \upharpoonleft F$ denotes the restriction of $\pi$ to $F$.
+Then $\pi - \tau$ is the least restriction of $\pi$ that is unchanged by all substiuttions for $\tau$:
+%
+\begin{equation*}
+  (\pi - \tau)/\tau \to \omega = \pi - \tau.
+\end{equation*}
+%
+thus, if $\eta \in S^{\#*} \pi$ then
+%
+\begin{align*}
+  \eta \upharpoonleft \dom{(\pi - \tau)} \in S^{\#*}(\pi - \tau) &= S^{\#*}((\pi - \tau)/\tau \to \omega) \\
+  &= [S \mid \tau : S^\# \omega]^{\#*} (\pi - \tau).
+\end{align*}
+%
+In conjunction with
+%
+\begin{equation*}
+  S^\#(\omega'/\tau \to \omega) = [S \mid \tau : S^\# \omega]^\# \omega',
+\end{equation*}
+%
+this justifies the following extension of ordinary expressions, which provides the pure definition of types (without primitive operation):
+%
+\begin{align}
+  \tag{Eh}
+  \textit{If } & \tau \in T, \omega, \omega' \in \Omega, \pi \in \Omega^*, \textit{ and } e \in E_{\pi - \tau, \omega'} \textit{ then } \\
+  \nonumber
+  & \lettypein{\tau}{\omega}{e} \in E_{\pi, (\omega'/\tau \to \omega)}, \\
+  \tag{Mh}
+  \textit{If } & \tau \in T, \omega, \omega' \in \Omega, \pi \in \Omega^*, \textit{ and } e \in E_{\pi - \tau, \omega'} \textit{ then } \\
+  \nonumber
+  & \mu_{\pi, (\omega'/\tau \to \omega)} \interp{\lettypein{\tau}{\omega}{E}} \; S \; \eta = \\
+  \nonumber
+  & \mu_{\pi - \tau, \omega'} \interp{e} \; [S \mid \tau : S^\# \omega] \; (\eta \upharpoonleft \dom{(\pi - \tau)}).
+\end{align}
+%
+Notice that the condition $e \in E_{\pi - \tau, \omega'}$ limits the ordinary variables occurring free in $e$ to variables whose types do not depend on $\tau$.
+
+This extension preserves the abstraction theorem.
+Moreover, the abstraction theorem implies a relationship between the meanings of $\lettypein{\tau}{\omega}{e}$ for different representations $\omega$:
+
+\newtheorem{puretypedef}{Pure Type Definition Theorem}
+\begin{puretypedef}
+Let $S$ be a set assignment, $\omega_1, \omega_2 \in \Omega$, and $r$ be a relation between $S^\# \omega_1$ and $S^\# \omega_2$.
+For all $\pi \in \Omega^*$, $\tau \in T$, $\omega' \in \Omega$, $e \in E_{\pi - \tau, \omega'}$, and $\eta \in S^{\#*} \pi$,
+%
+\begin{align*}
+  &\pair{\mu_{\pi, (\omega'/\tau \to \omega_1)} \interp{\lettypein{\tau}{\omega_1}{e}} \; S \; \eta, \\
+  &\phantom{\langle} \mu_{\pi, (\omega'/\tau \to \omega_2)} \interp{\lettypein{\tau}{\omega_2}{e}} \; S \; \eta} \\
+  &\quad \in [\IA \mid \tau : r]^\# \omega',
+\end{align*}
+%
+where $\IA$ is the relation assignment such that $\IA \; \tau = \Id(S \; \tau)$ for all $\tau \in T$.
+\end{puretypedef}
+
+\begin{proof}[Proof:\nopunct]
+  By the identity extension lemma, $[\IA \mid \tau : r]^{\#*} (\pi - \tau)$ is an identity relation, and thus contains $\pair{\eta \upharpoonleft \dom{(\pi - \tau)}, \eta \upharpoonleft \dom{(\pi - \tau)}}$.
+  The rest of the theorem follows by applying the abstraction theorem to the definition of the $\lettype$ construct.
+\end{proof}
+
+Since our language is higher-order, it is trivial to extend the pure $\lettype$ construction to include the definition of primitive operations; the extension is semantically insignificant and can be defined as syntactic sugar.
+For simplicity, we only consider defining a single primitive with name $v_p$, abstract type $\omega_p$, and definition $e_p$:
+% I have no idea how to typeset this otherwise
+\begin{align*}
+  & \textit{If } \tau \in T, \omega, \omega', \omega_p \in \Omega, \pi \in \Omega^*, e \in E_{[\pi - \tau | v_p : \omega_p], \omega'}, \\
+  & \textit{and } e_p \in E_{\pi, (\omega_p/\tau \to \omega)} \textit{ then } \\
+  & \quad \letwith{\tau}{\omega}{v_p}{\omega_p}{e_p}{e} \\
+  & \textit{is a member of } E_{\pi, (\omega'/\tau \to \omega)} \textit{ with the same meaning as } \\
+  & \quad (\lettypein{\tau}{\omega}{\lambda v_p : \omega_p . e})(e_p).
+\end{align*}
+%
+Notice that, unlike the algebraic approach to type definition, the operation type $\omega_p$ can be higher-order.
+The more complicated case, where several primitive operations, or even several types, are defined is conceptually similar.
+
+When applied to this extension, the pure type definition theorem leads to the
+
+\newtheorem*{gentypedef}{General Type Definition Theorem}
+\begin{gentypedef}
+Let
+%
+\begin{align*}
+  & S \textit{ be a set assignment }, \omega_1, \omega_2, \omega', \omega_p \in \Omega, \\
+  & r \textit{ be a relation between } S^\# \omega_1 \textit{ and } S^\# \omega_2, \\
+  & \pi \in \Omega^*, \eta \in S^{\#*} \pi, \tau \in T, v_p \in V, \\
+  & e \in E_{[\pi - \tau \mid v_p : \omega_p], \omega'}, \\
+  & e_1 \in E_{\pi, (\omega_p/\tau \to \omega_1)}, e_2 \in E_{\pi, (\omega_p/\tau \to \omega_2)}
+\end{align*}
+%
+be such that
+%
+\begin{align*}
+  &\pair{\mu_{\pi, (\omega_p/\tau \to \omega_1)} \interp{e_1} \; S \; \eta, \\
+  &\phantom{\langle} \mu_{\pi, (\omega_p/\tau \to \omega_2)} \interp{e_2} \; S \; \eta} \\
+  &\quad \in [\IA \mid \tau : r]^\# \omega_p,
+\end{align*}
+%
+where $\IA$ is the relation assignment such that $\IA \; \tau = \Id(S \; \tau)$ for all $\tau \in T$.
+Then
+%
+\begin{align*}
+  &\pair{\mu_{\pi, (\omega'/\tau \to \omega_1)} \interp{\letwith{\tau}{\omega_1}{v_p}{\omega_p}{e_1}{e}} \; S \; \eta, \\
+  &\phantom{\langle} \mu_{\pi, (\omega'/\tau \to \omega_2)} \interp{\letwith{\tau}{\omega_2}{v_p}{\omega_p}{e_2}{e}} \; S \; \eta} \\
+  &\quad \in [\IA \mid \tau : r]^\# \omega'.
+\end{align*}
+\end{gentypedef}
+
+It can be argued that, to achieve complete type opacity, the extended $\lettype \dots \with$ construction should be restricted by requiring that $\tau$ not occur (free) in $\omega'$.
+In this case, $[\IA \mid \tau : r]^\# \omega'$ in the conclusion of the general type definition theorem can be replaced by the identity relation $\IA^\# \omega'$, so that
+$\mu_{\pi, \omega'} \interp{\letwith{\tau}{\omega_i}{v_p}{\omega_p}{e_i}{e}} \; S \; \eta$
+is independent of $i$.
+
+\section{From Sets to Domains}
+
+Although this paper is primarily concerned with set-theoretic semantics, in this section and the next we digress to consider the interpretation of types as domains rather than sets.
+We define a domain to be a complete partial ordering, \ie a partial ordering containing a least element $\bot$ and least upper bounds of all directed subsets.
+
+The essential changes in the semantics of our language are that the class of sets is replaced by the class of domains, set assignments become domain assignments, $\to$ between domains is redefined to denote a pointwise-ordered set of continuous functions, and the products in (\ref{S4}) and (\ref{S-star}) are also pointwise ordered.
+Since constant types must denote domains, $\CS(\Bool)$ becomes the domain
+
+\begin{center}
+\begin{tikzcd}[tips=false, column sep=0em, row sep=1em]
+  ~\true \ar{dr} && \false \ar{dl} \\
+  & \bot &
+\end{tikzcd}
+\end{center}
+
+and the semantics of the conditional expression is extended to
+%
+\begin{align*}\tag{Mg'}
+  \textit{If } & b \in E_{\pi, \Bool} \textit{ and } e, e' \in E_{\pi, \omega} \textit{ then } \\
+  & \mu_{\pi \omega} \interp{\ifte{b}{e}{e'}} \; S \; \eta = \\
+  & \phantom{\mu_{\pi \omega}} \ifm \; \mu_{\pi, \Bool} \interp{b} \; S \; \eta = \true \\
+  & \phantom{\mu_{\pi \omega}} \thenm \; \mu_{\pi \omega} \interp{e} \; S \; \eta \\
+  & \phantom{\mu_{\pi \omega}} \elsem \; \ifm \; \mu_{\pi, \Bool} \interp{b} \; S \; \eta = \false \\
+  & \phantom{\mu_{\pi \omega}} \thenm \; \mu_{\pi \omega} \interp{e'} \; S \; \eta \\
+  & \phantom{\mu_{\pi \omega}} \elsem \; \bot_S \#_\omega.
+\end{align*}
+%
+Then the ordinary expressions can be extended to include a generic fixed-point operator:
+%
+\begin{align*}
+  \tag{Ei}
+  \textit{If } & e \in E_{\pi, \omega \to \omega} \textit{ then } \Y \; e \in E_{\pi \omega}, \\
+  \tag{Mi}
+  \textit{If } & e \in E_{\pi, \omega \to \omega} \textit{ then } \mu_{\pi \omega} \interp{\Y \; e} \; S \; \eta \textit{ is the least }\\
+  & \textit{ fixed-point of } \mu_{\pi, \omega \to \omega} \interp{e} \; S \; \eta \textit{ in the domain } S^\# \omega.
+\end{align*}
+%
+The addition of a fixed-point operator, as well as the extension of the meaning of conditionals, causes the abstraction theorem to fail.
+To save the situation, we must require the relations denoted by type expressions and assignments to be \emph{complete} relations.
+
+A subset $C$ of a domain $D$ is \emph{complete} iff $C$ contains $\bot_{D}$ and, for every directed $X \subseteq D$, if $X \subseteq C$ then the least upper bound of $X$ belongs to $C$.
+A relation between domains $s_1$ and $s_2$ is \emph{complete} iff it is a complete subset of the pointwise-ordered product $s_1 \times s_2$.
+
+Identity relations are complete, and completeness is preserved by the action of $\to$ and $\times$ upon relations.
+Thus it is consistent to restrict the sets $\Rel(s_1, s_2)$ to complete relations.
+This restriction is sufficient to regain the abstraction theorem.
+
+(Further difficulties arise if domains are taken to be complete lattices rather than complete partial orderings, because of the behavior of the conditional construct for the overdefined element $\top_{\Bool}$.
+These difficulties can be resolved by taking $R^\# \Bool$ to be the partial identity relation that does not relate $\top$ to itself, or by using a doubly strict conditional and strengthening the definition of a complete subset to require it to contain $\top$.
+These complications are typical of the vagaries of overdefined elements.)
+
+As an aside, we note that ideals are a special case of complete subsets:
+A complete subset $C$ of a domain $D$ is an \emph{ideal} iff it is downward closed, \ie $(\forall x \in D) (\forall y \in C) \; x \sqsubseteq y$ implies $x \in C$.
+The operations $\to$ and $\times$ preserve ideal relations, but binary identity relations are not ideals.
+However, if one works with unary, rather than binary relations (which is a special case of the extension to multinary relations discussed in \cref{sec:gen-abs}) then identity relations are trivially ideals, and our operations $\to$ and $\times$ become the operations \mbox{$\to$} and \mbox{$times$} used in \citep{applicative}.
+
+Finally, we note that the partial orderings of domains are complete relations that are preserved by $\to$ and $\times$, \ie
+%
+\begin{align*}
+  {} \sqsubseteq_s {} \to {} \sqsubseteq_{s'} {} &= {} \sqsubseteq_{s \to s'} {}, \\
+  {} \sqsubseteq_s {} \times {} \sqsubseteq_{s'} {} &= {} \sqsubseteq_{s \times s'} {}.
+\end{align*}
+%
+In conjunction with reflexivity, this implies that both the identity extension lemma and the abstraction theorem remain true if identity relations on domains are replaced by the partial orderings, \ie if $\Id(s)$ is redefined to be $\sqsubseteq_s$.
+This ``order-relation'' semantics of type expressions will be used in the next section.
+
+\section{Representations}
+
+In~\citep{polymorphism}, the abstraction properties of types were characterized by a ``representation'' theorem.
+In this section we show that this theorem is a special case of the abstraction theorem.
+
+For domains $s_1$ and $s_2$, a representation between $s_1$ and $s_2$ is a pair $\pair{\phi, \psi}$ of continuous functions such that
+%
+\begin{align*}
+  & \phi \in s_1 \to s_2, & \psi \in s_2 \to s_1, \\
+  & \psi \cdot \phi \sqsupseteq \Id_{s_1}, & \phi \cdot \psi \sqsubseteq \Id_{s_2},
+\end{align*}
+%
+where $\cdot$ denotes functional composition, \ie $(\psi \cdot \phi) \; x = \psi(\phi \; x)$, and $\Id_s$ denotes the identity function on $s$.
+(If the partial orderings $s_1$ and $s_2$ are regarded as categories, then a representation is an adjunction, with $\phi$ being the left adjoint of $\psi$.)
+
+We write $\Rel(s_1, s_2)$ for the set of representations between $s_1$ and $s_2$.
+domains and the representations between them form a category $\REP$ in which composition is $\pair{\phi, \psi} \cdot \pair{\phi', \psi'} = \pair{\phi \cdot \phi', \psi \cdot \psi'}$ and the identity representation for a domain $s$ is $\IP(s) = \pair{\Id_s, \Id_s}$.
+
+For $\pair{\phi, \psi} \in \Rep(s_1, s_2)$ and $\pair{\phi', \psi'} \in \Rep(s'_1, s'_2)$, we define
+%
+\begin{align*}
+  && \pair{\phi, \psi} \to \pair{\phi', \psi'} &\in \Rep(s_1 \to s'_1, s_2 \to s'_2) \\
+  \textit{and} && \pair{\phi, \psi} \times \pair{\phi', \psi'} &\in \Rep(s_1 \times s'_1, s_2 \times s'_2) \\
+  \textit{by} && \pair{\phi, \psi} \to \pair{\phi', \psi'} &= \pair{\Phi, \Psi} \\
+  && \textit{where } \Phi \; f_1 &= \phi' \cdot f_1 \cdot \psi \\
+  && \Psi \; f_2 &= \psi' \cdot f_2 \cdot \phi \\
+  \textit{and} && \pair{\phi, \psi} \times \pair{\phi', \psi'} &= \pair{\Phi, \Psi} \\
+  && \textit{where } \Phi \; \pair{x_1, x'_1} &= \pair{\phi \; x_1, \phi' x'_1} \\
+  && \Psi \; \pair{x_2, x'_2} &= \pair{\psi \; x_2, \psi' x'_2}
+\end{align*}
+%
+(Thus $\to$ and $\times$ are functors from $\REP \times \REP$ to $\REP$.)
+
+For domain assignments $S_1$ and $S_2$,
+%
+\begin{equation*}
+  \prod_{\tau \in T}^{} \Rep(S_1 \tau, S_2 \tau)
+\end{equation*}
+%
+is the set of representation assignments between $S_1$ and $S_2$.
+If $P$ is such an assignment then
+%
+\begin{equation*}
+  P^\# \in \prod_{\omega \in \Omega}^{} \Rep(S^\#_1 \omega, S^\#_2 \omega)
+\end{equation*}
+%
+is such that
+%
+\begin{align*}
+  \tag{P1}
+  &\textit{If } \kappa \in C \textit{ then } P^\# \; \kappa = \IP(\CS \; \kappa), \\
+  \tag{P2}
+  &\textit{If } \tau \in T \textit{ then } P^\# \; \tau = P ; \tau,\\
+  \tag{P3}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } P^\#(\omega \to \omega') = P^\# \omega \to P^\# \omega', \\
+  \tag{P4}
+  &\textit{If } \omega, \omega' \in \Omega \textit{ then } P^\#(\omega \times \omega') = P^\# \omega \times P^\# \omega',
+\end{align*}
+%
+and
+%
+\begin{equation*}
+  P^{\#*} \in \prod_{\pi \in \Omega^*} \Rep(S^{\#*}_1 \pi, S^{\#*}_2 \pi)
+\end{equation*}
+%
+is such that
+%
+\begin{align*}
+  \tag{P*}
+  P^{\#*} \pi &= \pair{\Phi, \Psi} \\
+  \textit{where } \Phi \; \eta_1 \; v &= \phi_v(\eta_1 v) \\
+  \Psi \; \eta_2 \; v &= \psi_v(\eta_2 v) \\
+  \textit{and } \pair{\phi_v, \psi_v} &= P^\#(\pi v).
+\end{align*}
+%
+This ``representation semantics'' of type expressions is closely related to their order-relation semantics.
+For each $\pair{\phi, \psi} \in \Rep(s_1, s_2)$, we define $\overline{\pair{\phi, \psi}} \in \Rel(s_1, s_2)$ to be the complete relation such that
+%
+\begin{equation*}
+  \pair{x_1, x_2} \in \overline{\pair{\phi, \psi}} \textit{ iff } x_1 \sqsubseteq_{s_1} \psi \; x_2,
+\end{equation*}
+%
+or equivalently
+%
+\begin{equation*}
+  \pair{x_1, x_2} \in \overline{\pair{\phi, \psi}} \textit{ iff } \phi \; x_1 \sqsubseteq_{s_2} x_2.
+\end{equation*}
+%
+Then
+%
+\begin{align*}
+  & \overline{\IP(s)} = {} \sqsubseteq_s {} = \Id(s), \\
+  & \overline{\pair{\phi, \psi} \to \pair{\phi', \psi'}} = \overline{\pair{\phi, \psi}} \to \overline{\pair{\phi', \psi'}}, \\
+  & \overline{\pair{\phi, \psi} \times \pair{\phi', \psi'}} = \overline{\pair{\phi, \psi}} \times \overline{\pair{\phi', \psi'}}, \\
+\end{align*}
+%
+so that
+%
+\begin{align*}
+  & \textit{If } R \; \tau = \overline{P \; \tau} \textit{ for all } \tau \in T \\
+  & \textit{then } R^\# \omega = \overline{P^\# \omega} \textit{ for all } \omega \in \Omega^* \\
+  & \textit{and } R^{\#*} \pi = \overline{P^{\#*} \pi} \textit{ for all } \pi \in \Omega^*.
+\end{align*}
+%
+Thus the abstraction theorem implies the
+
+\newtheorem*{representation}{Representation Theorem}
+\begin{representation}
+  Let $P$ be a representation assignment between domain assignments $S_1$ and $S_2$.
+  For all $\pi \in \Omega^*$, $\omega \in \Omega$, $e \in E_{\pi \omega}$, and $\pair{\eta_1, \eta_2} \in P^{\#*} \pi$,
+  %
+  \begin{equation*}
+    \pair{\mu_{\pi \omega} \interp{e} \; S_1 \; \eta_1, \mu_{\pi \omega} \interp{e} \; S_2 \; \eta_2} \in \overline{P^\# \omega}.
+  \end{equation*}
+\end{representation}
+
+\section{Polymorphic Functions} \label{sec:poly-fun}
+
+In~\citep{polymorphism} we proposed an extension of the typed lambda calculus in which the binding of type variables was introduced to permit the construction of polymorphic functions.
+(A similar but more general extension of the typed lambda calculus was developed independently in \citep{SystemF}, with the entirely different motivation of extending the connection between typed lambda calculus and intuitionistic logic.)
+
+The basic idea is that an ordinary expression $e$ of type $\omega$ can be abstracted on a type variable $\tau$ to give $\Lambda \tau. e$ of type $\Delta \tau. \omega$, which can be thought of as the type of polymorphic functions that, when applied to a type $\tau$, yield a value of type $\omega$.
+Then an ordinary expression $p$ denoting a polymorphic function of type $\Delta \tau. \omega'$ can be applied to a type expression $\omega$ to give an ordinary expression $p[\omega]$ of type $\omega'/\tau \to \omega$.
+The intent is that $(\lambda \tau. e)[\omega]$ should have the same meaning as $\lettypein{\tau}{\omega}{e}$, or equivalently as the result of substituting $\omega$ for $\tau$ in all type expressions occurring in $e$.
+
+For example,
+%
+\begin{equation*}
+  \Lambda \tau. \lambda f: \tau \to \tau. \lambda x: \tau. f(f(x))
+\end{equation*}
+%
+denotes a polymorphic doubling function of type
+%
+\begin{equation*}
+  \Delta \tau. (\tau \to \tau) \to (\tau \to \tau),
+\end{equation*}
+%
+and
+%
+\begin{equation*}
+  (\Lambda \tau. \lambda f: \tau \to \tau. \lambda x: \tau. f(f(x)))[\Bool]
+\end{equation*}
+%
+has the same meaning as
+%
+\begin{equation*}
+  \lettypein{\tau}{\Bool}{\lambda f: \tau \to \tau. \lambda x: \tau. f(f(x))}
+\end{equation*}
+%
+or as
+%
+\begin{equation*}
+  \lambda f: \Bool \to \Bool. \lambda x: \Bool. f(f(x)).
+\end{equation*}
+%
+To make these ideas precise, we extend the syntax of type expressions by
+%
+\begin{equation*}\tag{$\Omega 5$}
+  \textit{If } \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \Delta \tau. \omega \in \Omega.
+\end{equation*}
+
+The operator $\Delta \tau$ binds the occurrences of $\tau$ in $\omega$, so that alpha conversion (\ie renaming) is applicable to type expressions.
+We will regard alpha-variants of type expressions as identical and assume that the definition of substitution for type variables includes the use of alpha conversion to avoid collisions of type variables.
+
+Then the syntax of ordinary expressions is extended by
+%
+\begin{align*}
+  \tag{Ej} \label{Ej}
+  & \textit{If } e \in E_{\pi - \tau, \omega} \textit{ then } \Lambda \tau. e \in E_{\pi, \Delta \tau. \omega}, \\
+  \tag{Ek}
+  & \textit{If } e \in E_{\pi, \Delta \tau. \omega'} \textit{ then } e[\omega] \in E_{\pi, (\omega'/\tau \to \omega)}.
+\end{align*}
+
+In (\ref{Ej}), notice that $e \in E_{\pi - \tau, \omega}$ prevents $e$ from containing free (though not bound) occurrences of any ordinary variables $v$ whose type $\pi v$ contains free occurrences of $\tau$.
+This reflects the fact that the meaning of $\tau$ in $\Lambda \tau. e$ is different from its meaning in the surrounding context.
+
+The concept of polymorphism was first recognized by \citet{fundamental}, who distinguished between ``parametric'' and ``ad hoc'' polymorphism.
+Intuitively, a parametric polymorphic function is one that behaves the same way for all types, while and ad hoc polymorphic function may have unrelated meanings for different types.
+For example, an ad hoc function might add integers, ``or'' Boolean values, and compose functions.
+In~\citep{polymorphism} our intention was to permit only parametric polymorphism.
+Thus, for example, the language provides no way of branching on types.
+
+\section{Semantics of Polymorphism}
+
+Several authors~\citep{polytype,retract,applicative,repindep,polydata} have developed domain-theoretic semantics for the language described in the previous section, or for closely related languages.
+However, these models do not describe parametric polymorphism, since the domains associated with polymorphic types include ad hoc functions.
+
+I am convinced that a satisfactory model should exclude ad hoc polymorphism.
+Moreover, based on the intuition that types are not limited to computation, I believe that, in the absence of recursive definitions of either values or types, it should be possible to give a set-theoretic semantics.
+This section and the next summarize the progress that has been made towards this goal.
+At present (March 1983) success has not been achieved, but the current results are encouraging.
+
+The most naive definition one might give for the set associated with a polymorphic type is the collection of functions that accept sets and give values of the appropriate type.
+However, this collection is far too large to be a set.
+Moreover, it includes ad hoc functions.
+
+Thus we define the set associated with a polymorphic type to be
+%
+\begin{align*}\tag{S5}
+  \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
+  & S^\#(\Delta \tau. \omega) = \set{p \mid \dom{(p)} = \SET \\
+  & \textit{ and } (\forall s \in \SET) \; p(s) \in [S \mid \tau: s]^\# \omega \\
+  & \textit{ and } \para_{S \tau \omega}(p)},
+\end{align*}
+%
+where $\SET$ is the class of all sets and $\para_{S \tau \omega}(p)$, to be defined later, excludes ad hoc functions.
+We hope that this exclusion is so severe that $S^\#(\Delta \tau. \omega)$ is (isomorphic to) a set; whether this is the case for all $\omega$ is the central unsolved question about our proposed model.
+
+The semantics of ordinary expressions is more straightforward:
+%
+\begin{align*}
+  \tag{Mj}
+  \textit{If } & e \in E_{\pi - \tau, \omega} \textit{ then } \\
+  & \mu_{\pi, \Delta \tau. \omega} \interp{\Lambda \tau. e} \; S \; \eta = p \in S^\#(\Delta \tau. \omega) \textit{ is such that } \\
+  & p(s) = \mu_{\pi - \tau, \omega} \interp{e} \; [S \mid \tau: s] \; (\eta \upharpoonleft \dom{(\pi - \tau)}), \\
+  \tag{Mk}
+  \textit{If } & e \in E_{\pi, \Delta \tau. \omega'} \textit{ then } \\
+  & \mu_{\pi, (\omega'/\tau \to \omega)} \interp{e[\omega]} \; S \; \eta = \mu_{\pi, \Delta \tau. \omega'} \interp{e} \; S \; \eta \; (S^\# \omega).
+\end{align*}
+%
+Next, we specify the relation semantics of $\Delta \tau. \omega$.
+The following definition preserves the validity of the abstraction theorem (and is essentially determined by this requirement):
+%
+\begin{align*}\tag{R5}\label{R5}
+  \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
+  & R^\#(\Delta \tau. \omega) \in \Rel(S^\#_1(\Delta \tau. \omega), S^\#_2(\Delta \tau. \omega)) \\
+  & \textit{is the relation such that } \pair{p_1, p_2} \in R^\#(\Delta \tau. \omega) \textit{ iff } \\
+  & (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \pair{p_1 s_2, p_2 s_2} \in [R \mid \tau: r]^\# \omega.
+\end{align*}
+
+However, the identity extension lemma raises a problem.
+Let $S$ be a set assignent and $\IA$ the relation assignment such that $\IA \; \tau = \Id(\S \; \tau)$ for all $\tau \in T$.
+Then (\ref{R5}) implies (taking $r$ to be an identity relation) that $\IA^\#(\Delta \tau. \omega)$ is a partial identity relation.
+But for $\IA^\#(\Delta \tau. \omega)$ to be a total identity relation, all $p$ in $S^\#(\Delta \tau. \omega)$ must statisfy
+%
+\begin{equation*}
+  (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \; \pair{p \; s_1, p \; s_2} \in [\IA \mid \tau: r]^\# \omega.
+\end{equation*}
+%
+Thus, if the identity extension lemma is to remain true, $\para{S \tau \omega}$ must be at least as restrictive as the following definition:
+%
+\begin{align*}\tag{PAR}\label{PAR}
+  & \para_{S \tau \omega}(p) = \\
+  & \quad (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \; \pair{p \; s_1, p \; s_2} \in [\IA \mid \tau: r]^\#, \\
+  & \quad \textit{where } \IA \; \tau = \Id(S \; \tau) \textit{ for all } \tau \in T.
+\end{align*}
+%
+However, we must be sure that this definition is permissible, \ie that all ordinary expressions of polymorphic type denote functions that are parametric.
+Let $S$ be a set assignment, $\pi \in \Omega^*$, $\tau \in T$, $\omega \in \Omega$, $e \in E_{\pi, \Delta \tau. \omega}$ and $\eta \in S^{\#*} \pi$.
+Then the identity extension lemma gives
+%
+\begin{equation*}
+  \pair{\eta, \eta} \in \IA^{\#*} \pi,
+\end{equation*}
+%
+the abstraction theorem gives
+%
+\begin{equation*}
+  \pair{\mu_{\pi, \Delta \tau. \omega} \interp{e} \; S \; \eta, \mu_{\pi, \Delta \tau. \omega} \interp{e} \; S \; \eta} \in \IA^\#(\Delta \tau. \omega)
+\end{equation*}
+%
+and (\ref{R5}) gives
+%
+\begin{align*}
+  & (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \\
+  & \quad \pair{\mu_{\pi, \Delta \tau. \omega} \interp{e} \; S \; \eta \; s_1, \mu_{\pi, \Delta \tau. \omega} \interp{e} \; S \; \eta \; s_2} \in [\IA \mid \tau: r] ^\# \omega,
+\end{align*}
+%
+so that $\para_{S \tau \omega}(\mu_{\pi, \Delta \tau. \omega} \; S \; \eta)$ holds.
+
+This is the essential link between abstraction and parametric polymorphism:
+The abstraction theorem guarantees that, in an environment in which all polymorphic functions are parametric, the meaning of any ordinary expression will be parametric.
+
+We are currently investigating the question of whether $S^\#(\Delta \tau. \omega)$ is small enough to be a set, and have obtained an affirmative answer for ``low-order'' $\omega$'s without any embedded $\Delta$'s.
+
+These results are obtained from (\ref{PAR}), but would also hold for any more restrictive definition of $\para_{S \tau \omega}$ that was still permissible.
+They are all based on the algebraic nature of low-order types.
+
+For nonnegative integers $n_1, \dots, n_k$, the collection
+%
+\begin{equation*}
+  S^\#(\Delta \tau. (\tau^{n_1} \to \tau) \times \dots \times (\tau^{n_k} \to \tau) \to \tau)
+\end{equation*}
+%
+is isomorphic to the carrier of the initial one-sorted algebra whose signature has operators $1, \dots, k$ with arities $n_1, \dots, n_k$.
+
+As special cases of this result,
+%
+\begin{equation*}
+  S^\#(\Delta \tau. \tau \times \tau \to \tau)
+\end{equation*}
+%
+is isomorphic to a two-element set (\eg of truth values) and
+%
+\begin{equation*}
+  S^\#(\Delta \tau. (\tau \to \tau) \times \tau \to \tau)
+\end{equation*}
+%
+is isomorphic to the set of natural numbers.
+
+This result generalizes to multiple binders and occurrences of free type variables.
+Let
+%
+\begin{align*}
+  \Omega_0 &= T \\
+  \Omega_{r + 1} &= T \cup \set{\omega_1 \times \dots \times \omega_k \to \tau \mid \omega_1, \dots, \omega_k \in \Omega_r \textit{ and } \tau \in T}
+\end{align*}
+%
+and
+%
+\begin{equation*}
+  T_b = {\tau_1, \dots, \tau_N}
+\end{equation*}
+%
+be a finite subset of $T$.
+If $\omega \in \Omega_2$ then
+%
+\begin{equation*}
+  S^\#(\Delta \tau_1. \dots \Delta \tau_N. \omega)
+\end{equation*}
+%
+is isomorphic to a set that can be defined algebraically.
+
+Specifically, $\omega$ can be written in the form
+%
+\begin{equation*}
+  \omega_1 \times \dots \times \omega_m \times \omega'_1 \times \dots \times \omega'_n \to \tau
+\end{equation*}
+%
+where each $\omega_i$ has the form $\tau$ or $\dots \to \tau$ for some $\tau \in T_b$ and each $\omega'_i$ has the form $\tau$ or $\dots \to \tau$ for some $\tau \in T - T_b$.
+Let $\Sigma$ be the many-sorted signature with sorts $T$ and operators $1, \dots, m$ of arities $\omega_1, \dots, \omega_m$.
+Let $S_1$ be the set assignment mapping $\tau \in T_b$ into $\set{}$ and $\tau \in T - T_b$ into $S_\tau$, let $F$ be the free $\Sigma$-algebra generated by $S_1$, and let $S_2$ be the set assignment mapping $\tau \in T$ into the $\tau$-component of the carrier of $F$.
+Then $S^\#(\Delta \tau. \dots \Delta \tau_N. \omega)$ is isomorphic to
+%
+\begin{equation*}
+  S^\#_2(\omega'_1 \times \dots \times \omega'_n \to \tau).
+\end{equation*}
+%
+Interesting special cases include
+%
+\begin{align*}
+  & S^\#(\Delta \tau. \tau \to \alpha) \simeq S^\# \alpha, \\
+  & S^\#(\Delta \tau. (\alpha \to \tau) \to \tau) \simeq S^\# \alpha, \\
+  & S^\#(\Delta \tau. (\alpha \to \tau) \times (\beta \to \tau) \to \tau) \simeq S^\# \alpha + S^\# \beta, \\
+  & S^\#(\Delta \tau. (\alpha \times \tau \to \tau) \times \tau \to \tau) \simeq (S^\# \alpha)^*,
+\end{align*}
+%
+where $\alpha$ and $\beta$ are free type variables, $\simeq$ denotes isomorphism, $+$ denotes disjoint union, and $s^*$ denotes the set of finite sequences of members of $s$.
+(The last isomorphism was suggested by a functional encoding of lists devised by C. B\"ohm.)
+
+We conjecture that, when $\Delta \tau_1. \dots \Delta \tau_N. \omega$ is closed and $\omega$ contains no $\Delta$'s, $S^\#(\Delta \tau_1. \dots \tau_N. \omega)$ is isomorphic to the subset of $E_{\pair{}, \omega}$ (where $\pair{}$ is the empty type assignment) whose members are in normal form.
+However, even if this conjecture, or the more general conjecture that $S^\# \omega$ is always isomorphic to some set, is false, a set-theoretic semantics of polymorphism may still be viable.
+The key may be to formulate a more general abstraction theorem and resulting definition of $\para_{S \tau \omega}$.
+This possibility is explored in the next section.
+
+\section{A More General Abstraction Theorem} \label{sec:gen-abs}
+
+There are two ways in which the abstraction theorem can be generalized.
+First, binary relations can be replaced by multinary relations.
+Second, and less trivially, individual relations can be replaced by families of relations of the kind used by \citet{intuitionistic} to model intuitionistic logic.
+
+These generalizations are suggested by recent work by G. \citet{definability}.
+Proposition 1 in \citep{definability} is essentially the generalization of our abstraction theorem ot multinary relations, and Proposition 2 is the further generalization to Kripke-like families of relations.
+Actually, these propositions deal with the pure typed lambda calculus and assume a fixed arbitrary set assignment, but their extension to our illustrative language and to varying set assignments is straightforward.
+
+Moreover, Plotkin showed that his Proposition 2 completely characterizes the meanings of the typed lambda calculus, in the sense that every meaning satisfying this proposition is the meaning of some ordinary expression.
+This result encourages the hope that his generalization will lead to a definition of $\para_{S \tau \omega}$ so restrictive that the collections of parametric polymorphic functions will be sets.
+
+To generalize from binary to multinary relations, we assume we are given a fixed index set $I$ of arbitrary cardinality.
+If $\scrs = \pair{\scrs_i \mid i \in I}$ is an $I$-indexed family of sets, then
+%
+\begin{equation*}
+  \Rel(\scrs) = \set{r \mid r \subseteq \prod_{i \in i}^{} \scrs_i}
+\end{equation*}
+%
+is the set of $I$-ary relations among the $\scrs_i$.
+For a set $s$, the $I$-ary identity relation on $s$ is
+%
+\begin{equation*}
+  I(s) = \set{\pair{x \mid i \in I} \mid x \in s} \in \Rel(\pair{s \mid i \in I}).
+\end{equation*}
+%
+To generalize further to Kripke semantics, we assume we are given a fixed partial ordering $W$ (of ``alternative worlds''), and we define a \emph{Kripke relation} among the $\scrs_i$ to be a function from $W$ to $\Rel(\scrs)$ that is monotone when $\Rel(\scrs)$ is ordered by inclusion. Thus
+%
+\begin{equation*}
+  \Krel(\scrs) = \set{f \mid f \in W \xrightarrow{\raisebox{0pt}[0pt][0pt]{$_\mathrm{mon}$}} \Rel(\scrs)}
+\end{equation*}
+%
+is the set of Kripke relations among the $\scrs_i$.
+For a set $s$, the identity Kripke relation on $s$ is $\IK(s) \in \Krel(\pair{s \mid i \in I})$ such that
+%
+\begin{equation*}
+  \IK(s) \; w = \Id(s) \textit{ for all } w \in W.
+\end{equation*}
+%
+For $k \in \Krel(\scrs)$ and $k' \in \Krel(\scrs')$ we define
+%
+\begin{equation*}
+  k \to k' \in \Krel(\pair{\scrs_i \to \scrs'_i \mid i \in I})
+\end{equation*}
+%
+to be the Kripke relation such that
+%
+\begin{align*}
+  \scrf & \in (k \to k') \; w \textit{ iff } \\
+  & \quad (\forall w' \geq w) (\forall x \in k \; w') \; \pair{\scrf_i x_i \mid i \in I} \in k' w',
+\end{align*}
+%
+and
+%
+\begin{equation*}
+  k \times k' \in \Krel(\pair{\scrs_i \times \scrs'_i \mid i \in I})
+\end{equation*}
+%
+to be the Kripke relation such that
+%
+\begin{align*}
+  \pair{\pair{x_i, x'_i} \mid i \in I} \in (k \times k') \; w \textit{ iff } x \in k \; w \textit{ and } x' \in k' w.
+\end{align*}
+
+If $S = \pair{S_i \mid i \in I}$ is an $I$-indexed family of set assignments, then
+%
+\begin{equation*}
+  \prod_{\tau \in T}^{} \Krel(\pair{S_i \tau \mid i \in I})
+\end{equation*}
+%
+is the set of \emph{Kripke relation assignments} among the $S_i$.
+If $K$ is such an assignment then
+%
+\begin{equation*}
+  K^\# \in \prod_{\omega \in \Omega}^{} \Krel(\pair{S_i^\# \omega \mid i \in I})
+\end{equation*}
+%
+is such that
+%
+\begin{align*}
+  \tag{K1}
+  \textit{If } & \kappa \in C \textit{ then } K^\# \; \kappa = \IK(\CS \; \kappa), \\
+  \tag{K2}
+  \textit{If } & \tau \in T \textit{ then } K^\# \; \tau = K \; \tau, \\
+  \tag{K3}
+  \textit{If } & \omega, \omega' \in \Omega \textit{ then } K^\#(\omega \to \omega') = K^\# \omega \to K^\# \omega', \\
+  \tag{K4}
+  \textit{If } & \omega, \omega' \in \Omega \textit{ then } K^\#(\omega \times \omega') = K^\# \omega \times K^\# \omega', \\
+  \tag{K5}
+  \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
+  & K^\#(\Delta \tau. \omega) \in \Krel(\pair{S_i^\#(\Delta \tau. \omega) \mid i \in I}) \\
+  & \textit{is the Kripke relation such that} \\
+  & \scrp \in K^\#(\Delta \tau. \omega) \textit{ iff } (\forall scrs \in \SET^I) (\forall k \in \Krel(\scrs)) \\
+  & \quad \pair{\scrp_i \scrs_i \mid i \in I} \in [K \mid \tau: k]^\# \omega \; w,
+\end{align*}
+%
+and
+%
+\begin{equation*}
+  K^{\#*} \in \prod_{\pi \in \Omega^*}^{} \Krel(\pair{S_i^{\#*} \pi \mid i \in I})
+\end{equation*}
+is such that
+%
+\begin{align*}\tag{K*}
+  \eta & \in K^{\#*} \pi \; w \textit{ iff } \\
+  & (\forall v \in \dom{} \pi) \; \pair{\eta_i v \mid i \in I} \in K^\#(\pi v) \; w.
+\end{align*}
+%
+Then we have the
+
+\newtheorem*{genabs}{Generalized Abstraction Theorem}
+\begin{genabs}
+  Let $K$ be a Kripke relation assignment among set assignments $S_i$.
+  For all $\pi \in \Omega^*$, $\omega \in \Omega$, $e \in E_{\pi \omega}$, $w \in W$, and $\eta \in K^{\#*} \pi \; w$,
+  %
+  \begin{equation*}
+    \pair{\mu_{\pi \omega} \interp{e} \; S_i \; \eta_i \mid i \in I} \in K^\# \omega \; w.
+  \end{equation*}
+\end{genabs}
+
+Moreover, the
+
+\newtheorem*{genIEL}{Generalized Identity Extension Lemma}
+\begin{genIEL}
+  Suppose that $\IA$ is a Kripke relation assignment such that $\IA \; \tau = \IK(S \; \tau)$ for all $\tau \in T_0 \subseteq T$.
+  Then
+  %
+  \begin{align*}
+    \IA^\# \omega &= \IK(S^\# \omega) \textit{ for all } \omega \textit{ such that } \FV(\omega) \subseteq T_0, \text{ and } \\
+    \IA^{\#*} \pi &= \IK(S^{\#*} \pi) \textit{ for all } \pi \textit{ such that } \\
+    & (\forall v \in \dom{} \pi) \; \FV(\pi v) \subseteq T_0,
+  \end{align*}
+\end{genIEL}
+
+will hold if $\para_{S \tau \omega}$ is defined by
+%
+\begin{align*}
+  & \para_{S \tau \omega}(p) =
+  (\forall \scrs \in \SET^I) (\forall k \in \Krel(\scrs)) (\forall w \in W) \\
+  & \quad \pair{\scrp \scrs_i \mid i \in I} \in [\IA \mid \tau: k]^\# \omega \; w, \\
+  & \quad \textit{where } \IA \; \tau = \IK(S \; \tau) \textit{ for all } \tau \in T,
+\end{align*}
+
+and the generalized abstraction theorem shows that this definition is permissible.
+
+\section{Existential Type Quantification}
+
+In \citep{SystemF}, J.-Y. Girard proposed an extension of the typed lambda calculus based on an analogy with intuitionistic logic, in which a type expression is interpreted as a proposition, and an ordinary expression as a proof of the proposition that is its type.
+Specifically, the type operators $\to$, $\times$, and $+$ (disjoint union) are interpreted as implication, conjunction, and disjunction.
+This analogy led Girard to introduce new type operations corresponding to universal and existential quantification.
+His universal quantifier $\forall$ coincides with our $\Delta$, but his existential quantifier $\exists$ goes beyond the language proposed in \citep{polymorphism}.
+
+Gordon Plotkin and John Mitchell have recently suggested that existential types capture the idea of encapsulating primitive operations with abstract types; essentially and object of type $\exists \tau. \omega_p$ consists of a representation type $\omega$ along with a primitive operation of type $\omega_p/\tau \to \omega$.
+
+The following is a syntactic description that recasts their ideas in the notation of this paper:
+The syntax of type expressions is extended by
+%
+\begin{equation*}\tag{$\Omega 6$}
+  \textit{If } \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \exists \tau. \omega \in \Omega,
+\end{equation*}
+%
+where $\exists \tau$ binds the occurrences of $\tau$ in $\omega$ (and alpha-variants are regarded as identical).
+Then the syntax of ordinary expressions is extended by
+%
+\begin{align*}
+  \tag{El} \label{El}
+  \textit{If } & \pi \in \Omega^*, \tau \in T, \omega, \omega_p \in \Omega, \textit{ and } e_p \in E_{\pi, (\omega_p/\tau \to \omega)} \\
+  & \textit{ then } \pair{\omega, e_p : \exists \tau. \omega_p} \in E_{\pi, \exists \tau. \omega_p}, \\
+  \tag{Em}
+  \textit{If } & \pi \in \Omega^*, \tau \in T, v_p \in V, \omega', \omega_p \in \Omega, \\
+  & e' \in E_{\pi, \exists \tau. \omega_p}, e \in E_{[\pi - \tau \mid v_p : \omega_p], \omega'}, \textit{ and } \tau \notin \FV(\omega') \\
+  & \textit{ then } \abstractin{\tau}{v_p}{e'}{e} \in E_{\pi \omega'}.
+\end{align*}
+%
+In (\ref{El}), notice that $\tau$ and $\omega_p$ must occur explicitly in $\pair{\omega, e_p : \exists \tau. \omega_p}$ to ensure that this expression has a unique type.
+
+The intent is that, for $\pi \in \Omega^*$, $\tau \in T$, $v_p \in V$, $\omega, \omega', \omega_p \in \Omega$, $e_p \in E_{\pi, (\omega_p/\tau \to \omega)}$, $e \in E_{[\pi - \tau \mid v_p : \omega_p]}$, and $\tau \notin \FV(\omega')$,
+%
+\begin{equation*}\tag{$\ast$}\label{star}
+  \abstractin{\tau}{v_p}{\pair{\omega, e_p : \exists \tau. \omega_p}}{e}
+\end{equation*}
+%
+should have the same meaning as
+%
+\begin{equation*}
+  \letwith{\tau}{\omega}{v_p}{\omega_p}{e_p}{e}.
+\end{equation*}
+%
+As discussed in \cref{sec:type-def,sec:poly-fun}, this $\lettype$ expression has the alternative desugaring
+%
+\begin{equation*}\tag{$\ast\ast$}\label{starstar}
+  (\Lambda \tau. \lambda v_p: \omega_p. e)[\omega](e_p)
+\end{equation*}
+%
+(which is actually more general, since the restriction $\tau \notin \FV(\omega')$ can be dropped).
+But the present approach embodies the idea of ``packaging'' the representation type $\omega$ with the implementation of the primitive operation (or type of primitive operations) $e_p$.
+
+The semantics of $\exists$ is no harder (or easier) than that of $\Delta$, since the existential constructs can be defined in terms of the universal ones.
+The essential idea, suggested to the author by D. Leivant, is that $\exists \tau. \omega$ should have teh same meaning as $\Delta \tau'. (\Delta \tau. (\omega \to \tau')) \to \tau'$, where $\tau'$ is distinct from $\tau$ and does not occur free in $\omega$.
+Thus we define
+%
+\begin{align*}\tag{S6}
+  \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
+  & S^\#(\exists \tau. \omega) = S^\#(\Delta \tau'. (\Delta \tau. (\omega \to \tau')) \to \tau') \\
+  & \textit{where } \tau' \neq \tau \textit{ and } \tau' \notin \FV(\omega),
+\end{align*}
+%
+and similarly for $R^\#$ and $K^\#$. Then the semantics of the new constructions for ordinary expressions is:
+%
+\begin{align*}
+  \tag{Ml}
+  & \textit{If } \pi \in \Omega^*, \tau \in T, \omega, \omega_p \in \Omega, \textit{ and } \\
+  & e_p \in E_{\pi, (\omega_p/\tau \to \omega)} \textit{ then } \\
+  & \quad \pair{\omega, e_p : \exists \tau. \omega_p} \\
+  & \textit{has the same meaning as } \\
+  & \quad \Lambda \tau'. \lambda p: \Delta \tau. (\omega_p \to \tau'). p [\omega](e_p) \\
+  & \textit{where } p \notin \dom{} \pi, \tau' \neq \tau, \textit{and } \tau' \textit{ does not occur free in } \omega_p, \omega, \\
+  & \pi v \textit{ for any } v \in \dom{} \pi, \textit{ or any type expression occurring in } e_p. \\[\parskip]
+  \tag{Mm}
+  & \textit{If } \pi \in \Omega^*, \tau \in T, v_p \in V, \omega', \omega_p \in \Omega, e' \in E_{\pi, \exists \tau. \omega_p}, \\
+  & e \in E_{[\pi - \tau \mid v_p: \omega_p], \omega'}, \textit{ and } \tau \notin \FV(\omega') \textit{ then } \\
+  & \quad \abstractin{\tau}{v_p}{e'}{e} \\
+  & \textit{has the same meaning as } \\
+  & \quad e'[\omega'](\Lambda \tau. \lambda v_p: \omega_p. e).
+\end{align*}
+
+Then (\ref{star}) has the same meaning as
+%
+\begin{equation*}
+  (\Lambda \tau'. \lambda p: \Delta \tau. (\omega_p \to \tau'). p[\omega](e_p))[\omega'](\Lambda \tau. \lambda v_p: \omega_p. e),
+\end{equation*}
+%
+which reduces to (\ref{starstar}).
+
+\section{Future Directions}
+
+Beyond the central problem of determining if $S^\#(\Delta \tau. \omega)$ is always a set, the following are promising directions for further research:
+
+\begin{enumerate}[label=(\alph*),wide]
+  \item Connections with category theory should be explored.
+    For example, binary relations can be made into a Cartesian closed category by defining suitable morphisms between relations.
+    Moreover, this category is (isomorphic to) a full subcategory of the Cartesian closed category $\SET^\Sigma$, where $\Sigma$ is the partial ordering
+    \begin{center}
+      \begin{tikzcd}[column sep=1em, row sep=2em]
+        \cdot && \cdot \\
+        & \ular \cdot \urar &
+      \end{tikzcd}
+    \end{center}
+    A similar story can probably be told about Kripke relations.
+  \item To deal with recursive definitions, of both values and types, a domain-theoretic model of parametric polymorphism should be sought.
+    While several domain-theoretic models of polymorphism have been proposed~\citep{polytype,retract,applicative,repindep,polydata}, none of them provides domains containing only parametric functions.
+  \item Polymorphism and its models should be extended to encompass some concept of subtype, including noninjective implicit conversions, as discussed in \citep{compilergen}.
+  \item The theory should be applied to imperative Algol-like languages.
+    In this connection, the distinction, made in \citep{Algol} and \citep{catpl}, between data types and phrase types is germane.
+    We have recently started exploring the practical potential of phrase-type definitions for data representation structuring in the sense of \citep[Chapter 5]{craft}.
+\end{enumerate}
+
+\begin{acks}
+  I am grateful to Gordon Plotkin and Daniel Leivant for their contagious enthusiasm and patient explanations, as well as numerous specific ideas.
+\end{acks}
+
+\bibliographystyle{unsrtnat}
+\bibliography{main}
+
+\end{document}
