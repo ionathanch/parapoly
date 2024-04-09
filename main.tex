@@ -48,14 +48,6 @@
 \newcommand{\thenm}{\mathsf{then}}
 \newcommand{\elsem}{\mathsf{else}}
 \newcommand{\iftem}[3]{\mathsf{if} \; #1 \; \mathsf{then} \; #2 \; \mathsf{else} \; #3}
-
-% if this is typeset as a metaobject, should C, T, V, K_\omega be too?
-% for now, typeset them like other metavariables
-\newcommand{\CS}{\mathit{CS}}
-\newcommand{\IA}{\mathit{IA}}
-\newcommand{\IK}{\mathit{IK}}
-
-% it seems wrong to typset these elsewise...
 \newcommand{\Rel}{\mathsf{Rel}}
 \newcommand{\Id}{\mathsf{I}}
 \newcommand{\Rep}{\mathsf{Rep}}
@@ -64,6 +56,12 @@
 \newcommand{\SET}{\mathsf{SET}}
 \newcommand{\para}{\mathsf{parametric}}
 \newcommand{\Krel}{\mathsf{Krel}}
+
+% if this is typeset as a metaobject, should C, T, V, K_\omega be too?
+% for now, typeset them like other metavariables
+\newcommand{\CS}{\mathit{CS}}
+\newcommand{\IA}{\mathit{IA}}
+\newcommand{\IK}{\mathit{IK}}
 
 % some script metavariables for convenience
 \newcommand{\scrs}{\mathscr{s}}
@@ -282,9 +280,9 @@ If $S$ is a set assignment then $S^\#$ is the mapping from $\Omega$ to the class
 %
 \begin{align}
   \tag{S1}
-  &\textit{If } \kappa \in C \textit{ then } S^\# \kappa = \CS \; \kappa \\
+  &\textit{If } \kappa \in C \textit{ then } S^\# \; \kappa = \CS \; \kappa \\
   \tag{S2}
-  &\textit{If } \tau \in T \textit{ then } S^\# \tau = S \; \tau, \\
+  &\textit{If } \tau \in T \textit{ then } S^\# \; \tau = S \; \tau, \\
   \tag{S3}
   &\textit{If } \omega, \omega' \in \Omega \textit{ then } S^\# (\omega \to \omega') = S^\# \omega \to S^\# \omega', \\
   \tag{S4}\label{S4}
@@ -1054,7 +1052,7 @@ is the set of $I$-ary relations among the $\scrs_i$.
 For a set $s$, the $I$-ary identity relation on $s$ is
 %
 \begin{equation*}
-  I(s) = \set{\pair{x \mid i \in I} \mid x \in s} \in \Rel(\pair{s \mid i \in I}).
+  \Id(s) = \set{\pair{x \mid i \in I} \mid x \in s} \in \Rel(\pair{s \mid i \in I}).
 \end{equation*}
 %
 To generalize further to Kripke semantics, we assume we are given a fixed partial ordering $W$ (of ``alternative worlds''), and we define a \emph{Kripke relation} among the $\scrs_i$ to be a function from $W$ to $\Rel(\scrs)$ that is monotone when $\Rel(\scrs)$ is ordered by inclusion. Thus
