@@ -94,6 +94,8 @@ Minor spacing changes (removing or adding single spaces for stylistic consistenc
 
 * [p. 516] Middle-left of fourth page, statement of Abstraction Theorem:
   added spaces between S₁ and η₁, S₂ and η₂
+* [p. 516] Bottom-left of fourth page, type substitution:
+  removed space between π and v
 * [p. 516] Bottom-right of fourth page, Pure Type Definition Theorem;
   [p. 517] Bottom-left of fifth page, after General Type Definition Theorem:
   removed spaces between [IA ∣ τ: r]^# and ω'

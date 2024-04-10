@@ -17,6 +17,7 @@
 \theoremstyle{plain}
 \setcitestyle{acmnumeric,nosort,curly}
 \allowdisplaybreaks
+\setlength{\fboxsep}{0pt}
 
 \DeclarePairedDelimiter{\set}{\{}{\}}
 \DeclarePairedDelimiter{\pair}{\langle}{\rangle}
@@ -186,7 +187,7 @@ The way out of this impasse is to generalize homomorphisms from functions to rel
 
 \section{An Extended Typed Lambda Calculus}
 
-To characterize abstraction in a setting that permits higher-order functions, we will define an extension of the explicitly typed lambda calculus, which constant types, products, and generic conditional expression, and show that its classical set-theoretic semantics obeys an ``abstraction theorem'' formalizing our thesis that type structure preserves abstraction.
+To characterize abstraction in a setting that permits higher-order functions, we will define an extension of the explicitly typed lambda calculus, which constant types, products, and generic conditional expressions, and show that its classical set-theoretic semantics obeys an ``abstraction theorem'' formalizing our thesis that type structure preserves abstraction.
 
 The expressions of this language are divided into type expressions and ordinary expressions.
 To define the syntax of type expressions, we assume that we are given
@@ -386,7 +387,7 @@ for the identity relation on a set $s$.
 For $r \in \Rel(s_1, s_2)$ $r' \in \Rel(s'_1, s'_2)$, we write $r \to r'$ for the relation in $\Rel(s_1 \to s'_1, s_2 \to s'_2)$ such that
 %
 \begin{equation*}
-  \pair{f_1, f_2} \in r \to r' \textit{ iff } (\forall \pair{x_1, x_2} \in r) \; \pair{f_1 \; x_2, f_2 \; x_2} \in r',
+  \pair{f_1, f_2} \in r \to r' \textit{ iff } (\forall \pair{x_1, x_2} \in r) \; \pair{f_1 \; x_1, f_2 \; x_2} \in r',
 \end{equation*}
 %
 and $r \times r'$ for the relation in $\Rel(s_1 \times s'_1, s_2 \times s'_2)$ such that
@@ -470,17 +471,17 @@ For the case where $e$ is a constant, this theorem depends upon the fact that, b
 The remainder of the proof is by structural induction on the syntax of ordinary expressions.
 
 The abstraction theorem is closely related to Proposition 1 in \citep{definability}.
-This relationship will be discussed in Section 9.
+This relationship will be discussed in \cref{sec:gen-abs}.
 
 \section{Type Definition} \label{sec:type-def}
 
 Several programming languages, of which CLU~\citep{CLU} is perhaps the earliest, permit one to introduce a new type by defining its representation in terms of builtin or previously defined types and defining its primitive operations in terms of procedures that act upon the representation.
 Within the scope of such a definition, the new type is \emph{opaque}, \ie the meaning of the scope is an abstraction over appropriately related definitions of the type.
 
-In this section, we extend our illustrative language to prove this kind of type definition, and derive a consequence of the abstraction theorem that formalizes type opacity.
+In this section, we extend our illustrative language to provide this kind of type definition, and derive a consequence of the abstraction theorem that formalizes type opacity.
 
 First, we introduce the notion of type substitution.
-For $\tau \in T$ and $\omega, \omega' \in \Omega$, we write $\omega'/\tau \to \omega$ to denote the type expression obtained from $\omega'$ by substitution $\omega$ for all (free) occurrences of $\tau$, and for $\pi \in \Omega^*$ we write $\pi/\tau \to \omega$ to denote the type assignment such that $(\pi/\tau \to \omega) \; v = (\pi \; v)/\tau \to \omega$ for all $v \in \dom{} \pi$.
+For $\tau \in T$ and $\omega, \omega' \in \Omega$, we write $\omega'/\tau \to \omega$ to denote the type expression obtained from $\omega'$ by substitution $\omega$ for all (free) occurrences of $\tau$, and for $\pi \in \Omega^*$ we write $\pi/\tau \to \omega$ to denote the type assignment such that $(\pi/\tau \to \omega) \; v = (\pi v)/\tau \to \omega$ for all $v \in \dom{} \pi$.
 
 Since the definitions of $\#$ and $*$ are algebraic in nature, it is easy to show that
 %
@@ -498,7 +499,7 @@ Second, for $\pi \in \Omega^*$ and $\tau \in T$, we define
 \end{equation*}
 %
 where $\FV(\pi v)$ denotes the set of type variables occurring (free) in the type expression $\pi v$, and $\pi \upharpoonleft F$ denotes the restriction of $\pi$ to $F$.
-Then $\pi - \tau$ is the least restriction of $\pi$ that is unchanged by all substiuttions for $\tau$:
+Then $\pi - \tau$ is the least restriction of $\pi$ that is unchanged by all substitutions for $\tau$:
 %
 \begin{equation*}
   (\pi - \tau)/\tau \to \omega = \pi - \tau.
@@ -661,7 +662,7 @@ These complications are typical of the vagaries of overdefined elements.)
 As an aside, we note that ideals are a special case of complete subsets:
 A complete subset $C$ of a domain $D$ is an \emph{ideal} iff it is downward closed, \ie $(\forall x \in D) (\forall y \in C) \; x \sqsubseteq y$ implies $x \in C$.
 The operations $\to$ and $\times$ preserve ideal relations, but binary identity relations are not ideals.
-However, if one works with unary, rather than binary relations (which is a special case of the extension to multinary relations discussed in \cref{sec:gen-abs}) then identity relations are trivially ideals, and our operations $\to$ and $\times$ become the operations \mbox{$\to$} and \mbox{$times$} used in \citep{applicative}.
+However, if one works with unary, rather than binary relations (which is a special case of the extension to multinary relations discussed in \cref{sec:gen-abs}) then identity relations are trivially ideals, and our operations $\to$ and $\times$ become the operations \fbox{$\to$} and \fbox{$\times$} used in \citep{applicative}.
 
 Finally, we note that the partial orderings of domains are complete relations that are preserved by $\to$ and $\times$, \ie
 %
@@ -689,7 +690,7 @@ where $\cdot$ denotes functional composition, \ie $(\psi \cdot \phi) \; x = \psi
 (If the partial orderings $s_1$ and $s_2$ are regarded as categories, then a representation is an adjunction, with $\phi$ being the left adjoint of $\psi$.)
 
 We write $\Rel(s_1, s_2)$ for the set of representations between $s_1$ and $s_2$.
-domains and the representations between them form a category $\REP$ in which composition is $\pair{\phi, \psi} \cdot \pair{\phi', \psi'} = \pair{\phi \cdot \phi', \psi \cdot \psi'}$ and the identity representation for a domain $s$ is $\IP(s) = \pair{\Id_s, \Id_s}$.
+Domains and the representations between them form a category $\REP$ in which composition is $\pair{\phi, \psi} \cdot \pair{\phi', \psi'} = \pair{\phi \cdot \phi', \psi \cdot \psi'}$ and the identity representation for a domain $s$ is $\IP(s) = \pair{\Id_s, \Id_s}$.
 
 For $\pair{\phi, \psi} \in \Rep(s_1, s_2)$ and $\pair{\phi', \psi'} \in \Rep(s'_1, s'_2)$, we define
 %
@@ -850,7 +851,7 @@ In (\ref{Ej}), notice that $e \in E_{\pi - \tau, \omega}$ prevents $e$ from cont
 This reflects the fact that the meaning of $\tau$ in $\Lambda \tau. e$ is different from its meaning in the surrounding context.
 
 The concept of polymorphism was first recognized by \citet{fundamental}, who distinguished between ``parametric'' and ``ad hoc'' polymorphism.
-Intuitively, a parametric polymorphic function is one that behaves the same way for all types, while and ad hoc polymorphic function may have unrelated meanings for different types.
+Intuitively, a parametric polymorphic function is one that behaves the same way for all types, while an ad hoc polymorphic function may have unrelated meanings for different types.
 For example, an ad hoc function might add integers, ``or'' Boolean values, and compose functions.
 In~\citep{polymorphism} our intention was to permit only parametric polymorphism.
 Thus, for example, the language provides no way of branching on types.
@@ -874,8 +875,8 @@ Thus we define the set associated with a polymorphic type to be
 \begin{align*}\tag{S5}
   \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
   & S^\#(\Delta \tau. \omega) = \set{p \mid \dom{(p)} = \SET \\
-  & \textit{ and } (\forall s \in \SET) \; p(s) \in [S \mid \tau: s]^\# \omega \\
-  & \textit{ and } \para_{S \tau \omega}(p)},
+  & \quad \textit{and } (\forall s \in \SET) \; p(s) \in [S \mid \tau: s]^\# \omega \\
+  & \quad \textit{and } \para_{S \tau \omega}(p)},
 \end{align*}
 %
 where $\SET$ is the class of all sets and $\para_{S \tau \omega}(p)$, to be defined later, excludes ad hoc functions.
@@ -900,13 +901,14 @@ The following definition preserves the validity of the abstraction theorem (and 
   \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
   & R^\#(\Delta \tau. \omega) \in \Rel(S^\#_1(\Delta \tau. \omega), S^\#_2(\Delta \tau. \omega)) \\
   & \textit{is the relation such that } \pair{p_1, p_2} \in R^\#(\Delta \tau. \omega) \textit{ iff } \\
-  & (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \pair{p_1 s_2, p_2 s_2} \in [R \mid \tau: r]^\# \omega.
+  & (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \\
+  & \quad \pair{p_1 s_1, p_2 s_2} \in [R \mid \tau: r]^\# \omega.
 \end{align*}
 
 However, the identity extension lemma raises a problem.
-Let $S$ be a set assignent and $\IA$ the relation assignment such that $\IA \; \tau = \Id(\S \; \tau)$ for all $\tau \in T$.
+Let $S$ be a set assignment and $\IA$ the relation assignment such that $\IA \; \tau = \Id(S \; \tau)$ for all $\tau \in T$.
 Then (\ref{R5}) implies (taking $r$ to be an identity relation) that $\IA^\#(\Delta \tau. \omega)$ is a partial identity relation.
-But for $\IA^\#(\Delta \tau. \omega)$ to be a total identity relation, all $p$ in $S^\#(\Delta \tau. \omega)$ must statisfy
+But for $\IA^\#(\Delta \tau. \omega)$ to be a total identity relation, all $p$ in $S^\#(\Delta \tau. \omega)$ must satisfy
 %
 \begin{equation*}
   (\forall s_1, s_2 \in \SET) (\forall r \in \Rel(s_1, s_2)) \; \pair{p \; s_1, p \; s_2} \in [\IA \mid \tau: r]^\# \omega.
@@ -1035,7 +1037,7 @@ First, binary relations can be replaced by multinary relations.
 Second, and less trivially, individual relations can be replaced by families of relations of the kind used by \citet{intuitionistic} to model intuitionistic logic.
 
 These generalizations are suggested by recent work by G. \citet{definability}.
-Proposition 1 in \citep{definability} is essentially the generalization of our abstraction theorem ot multinary relations, and Proposition 2 is the further generalization to Kripke-like families of relations.
+Proposition 1 in \citep{definability} is essentially the generalization of our abstraction theorem to multinary relations, and Proposition 2 is the further generalization to Kripke-like families of relations.
 Actually, these propositions deal with the pure typed lambda calculus and assume a fixed arbitrary set assignment, but their extension to our illustrative language and to varying set assignments is straightforward.
 
 Moreover, Plotkin showed that his Proposition 2 completely characterizes the meanings of the typed lambda calculus, in the sense that every meaning satisfying this proposition is the meaning of some ordinary expression.
@@ -1121,7 +1123,7 @@ is such that
   \textit{If } & \tau \in T \textit{ and } \omega \in \Omega \textit{ then } \\
   & K^\#(\Delta \tau. \omega) \in \Krel(\pair{S_i^\#(\Delta \tau. \omega) \mid i \in I}) \\
   & \textit{is the Kripke relation such that} \\
-  & \scrp \in K^\#(\Delta \tau. \omega) \textit{ iff } (\forall scrs \in \SET^I) (\forall k \in \Krel(\scrs)) \\
+  & \scrp \in K^\#(\Delta \tau. \omega) \textit{ iff } (\forall \scrs \in \SET^I) (\forall k \in \Krel(\scrs)) \\
   & \quad \pair{\scrp_i \scrs_i \mid i \in I} \in [K \mid \tau: k]^\# \omega \; w,
 \end{align*}
 %
@@ -1181,7 +1183,7 @@ Specifically, the type operators $\to$, $\times$, and $+$ (disjoint union) are i
 This analogy led Girard to introduce new type operations corresponding to universal and existential quantification.
 His universal quantifier $\forall$ coincides with our $\Delta$, but his existential quantifier $\exists$ goes beyond the language proposed in \citep{polymorphism}.
 
-Gordon Plotkin and John Mitchell have recently suggested that existential types capture the idea of encapsulating primitive operations with abstract types; essentially and object of type $\exists \tau. \omega_p$ consists of a representation type $\omega$ along with a primitive operation of type $\omega_p/\tau \to \omega$.
+Gordon Plotkin and John Mitchell have recently suggested that existential types capture the idea of encapsulating primitive operations with abstract types; essentially an object of type $\exists \tau. \omega_p$ consists of a representation type $\omega$ along with a primitive operation of type $\omega_p/\tau \to \omega$.
 
 The following is a syntactic description that recasts their ideas in the notation of this paper:
 The syntax of type expressions is extended by
@@ -1224,10 +1226,10 @@ As discussed in \cref{sec:type-def,sec:poly-fun}, this $\lettype$ expression has
 \end{equation*}
 %
 (which is actually more general, since the restriction $\tau \notin \FV(\omega')$ can be dropped).
-But the present approach embodies the idea of ``packaging'' the representation type $\omega$ with the implementation of the primitive operation (or type of primitive operations) $e_p$.
+But the present approach embodies the idea of ``packaging'' the representation type $\omega$ with the implementation of the primitive operation (or tuple of primitive operations) $e_p$.
 
 The semantics of $\exists$ is no harder (or easier) than that of $\Delta$, since the existential constructs can be defined in terms of the universal ones.
-The essential idea, suggested to the author by D. Leivant, is that $\exists \tau. \omega$ should have teh same meaning as $\Delta \tau'. (\Delta \tau. (\omega \to \tau')) \to \tau'$, where $\tau'$ is distinct from $\tau$ and does not occur free in $\omega$.
+The essential idea, suggested to the author by D. Leivant, is that $\exists \tau. \omega$ should have the same meaning as $\Delta \tau'. (\Delta \tau. (\omega \to \tau')) \to \tau'$, where $\tau'$ is distinct from $\tau$ and does not occur free in $\omega$.
 Thus we define
 %
 \begin{align*}\tag{S6}
