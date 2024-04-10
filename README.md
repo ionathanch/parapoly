@@ -76,7 +76,7 @@ all author initials in the references _do_ have separating spaces.
 * [p. 522] Middle-left of tenth page, after (Em): `insure` ⇝ `ensure`
 * [p. 523] Top-left of eleventh page, item (b): `recursive definition` ⇝ `recursive definitions`
 
-## Spacing
+### Spacing
 
 Generally, newlines in math environments have been removed when they fit, to my discretion.
 I've left some in where the alignment is particularly nice.
