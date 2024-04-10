@@ -1,0 +1,12 @@
+on: [push, workflow_dispatch]
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker run -v $(pwd):/workdir -w /workdir texlive/texlive latexmk --synctex=0
+      - uses: actions/upload-artifact@v3
+        with:
+          name: main.pdf
+          path: main.pdf
