@@ -32,8 +32,6 @@
 \newcommand{\Complex}{\mathtt{Complex}}
 \newcommand{\Int}{\mathtt{Int}}
 \newcommand{\Bool}{\mathtt{Bool}}
-\newcommand{\true}{\mathtt{true}}
-\newcommand{\false}{\mathtt{false}}
 \newcommand{\ifte}[3]{\mathtt{if} \; #1 \; \mathtt{then} \; #2 \; \mathtt{else} \; #3}
 \newcommand{\lettype}{\mathtt{lettype}}
 \newcommand{\with}{\mathtt{with}}
@@ -45,6 +43,8 @@
 % these are definitely metafunctions
 \newcommand{\dom}[1]{\mathsf{dom}\ifblank{#1}{\;}{#1}}
 \newcommand{\FV}{\mathsf{F}}
+\newcommand{\true}{\mathsf{true}}
+\newcommand{\false}{\mathsf{false}}
 \newcommand{\ifm}{\mathsf{if}}
 \newcommand{\thenm}{\mathsf{then}}
 \newcommand{\elsem}{\mathsf{else}}
@@ -163,7 +163,7 @@ A second moral of our fable is that types are not limited to computation.
 Thus (in the absence of recursion) they should be explicable without invoking constructs, such as Scott domains, that are peculiar to the theory of computation.
 Descartes and Bessel would be baffled by an explanation of their intuition that introduced undefined or approximate complex numbers.
 
-What computation has done is to create the necessity of formalize type disciplines, to the point where they can be enforced mechanically.
+What computation has done is to create the necessity of formalizing type disciplines, to the point where they can be enforced mechanically.
 The idea that type disciplines enforce abstraction clearly underlies such languages as CLU~\citep{CLU} and ALPHARD~\citep{Alphard}, and such papers as~\citep{not-sets} and~\citep{polymorphism}.
 More recently, however, many formalizations have treated types as predicates or other entities denoting specific subsets of some universe of values~\citep{polytype,retract,applicative,repindep,polydata}.
 This work has stemmed from Scott's discovery of how to construct sufficiently rich universes without encountering Russell's paradox.
@@ -187,7 +187,7 @@ The way out of this impasse is to generalize homomorphisms from functions to rel
 
 \section{An Extended Typed Lambda Calculus}
 
-To characterize abstraction in a setting that permits higher-order functions, we will define an extension of the explicitly typed lambda calculus, which constant types, products, and generic conditional expressions, and show that its classical set-theoretic semantics obeys an ``abstraction theorem'' formalizing our thesis that type structure preserves abstraction.
+To characterize abstraction in a setting that permits higher-order functions, we will define an extension of the explicitly typed lambda calculus, with constant types, products, and generic conditional expressions, and show that its classical set-theoretic semantics obeys an ``abstraction theorem'' formalizing our thesis that type structure preserves abstraction.
 
 The expressions of this language are divided into type expressions and ordinary expressions.
 To define the syntax of type expressions, we assume that we are given
