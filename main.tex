@@ -13,6 +13,10 @@
 \usepackage{hyperref}
 \usepackage[capitalize, noabbrev]{cleveref}
 
+\makeatletter
+\renewcommand{\@fnsymbol}[1]{\ensuremath{\dagger}}
+\makeatother
+
 \titlelabel{\thetitle.\quad}
 \theoremstyle{plain}
 \setcitestyle{acmnumeric,nosort}
