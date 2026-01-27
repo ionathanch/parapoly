@@ -6,7 +6,7 @@ Here's the bib for the paper:
 
 ```bibtex
 @inproceedings{
-  author = {Reynols, John C.},
+  author = {Reynolds, John C.},
   title  = {{Types, Abstraction and Parametric Polymorphism}},
   booktitle = {Information Processing 83},
   series = {IFIP Congress Series},
