@@ -6,16 +6,16 @@ Here's the bib for the paper:
 
 ```bibtex
 @inproceedings{
-  author = {Reynolds, John C.},
-  title  = {{Types, Abstraction and Parametric Polymorphism}},
+  author    = {Reynolds, John C.},
+  title     = {{Types, Abstraction and Parametric Polymorphism}},
   booktitle = {Information Processing 83},
-  series = {IFIP Congress Series},
-  volume = 9,
-  pages = {513--523}
-  year   = 1983,
-  editor = {Mason, R.E.A.},
+  series    = {IFIP Congress Series},
+  volume    = 9,
+  pages     = {513--523}
+  year      = 1983,
+  editor    = {Mason, R.E.A.},
   publisher = {Elsevier Science Publishers B.V.},
-  address = {Amsterdam, The Netherlands}
+  address   = {Amsterdam, The Netherlands}
 }
 ```
 
