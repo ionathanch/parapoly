@@ -2,8 +2,7 @@
 \settopmatter{printccs=false,printacmref=false,printfolios=true}
 \let\Bbbk\relax
 
-\usepackage{titlesec}
-\usepackage{abstract}
+\usepackage[runin]{abstract}
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{xspace}
@@ -17,10 +16,9 @@
 \renewcommand{\@fnsymbol}[1]{\ensuremath{\dagger}}
 \makeatother
 
-\titlelabel{\thetitle.\quad}
+\allowdisplaybreaks
 \theoremstyle{plain}
 \setcitestyle{acmnumeric,nosort}
-\allowdisplaybreaks
 \setlength{\fboxsep}{0pt}
 \setlength{\headheight}{29.24403pt} % warning from fancyhdr
 
@@ -74,7 +72,8 @@
 \newcommand{\scrf}{\mathscr{f}}
 \newcommand{\scrp}{\mathscr{p}}
 
-\renewcommand\acksname{Acknowledgement}
+\renewcommand{\abstractname}{~}
+\renewcommand{\acksname}{Acknowledgement}
 
 \title{Types, Abstraction and Parametric Polymorphism}
 \titlenote{Work supported by National Science Foundation Grant MCS-8017577.}

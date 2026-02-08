@@ -58,6 +58,16 @@ fixing only cases where they deviated from usage across the same functions.
 Curiously, while the Reynolds' and the editor's names have no spaces between the initials in the headers,
 all author initials in the references _do_ have separating spaces.
 
+### On section titles
+
+The original section titles are formatted as `3. THE ABSTRACTION THEOREM`, etc.
+In the `acmart` class, they are formatted in large bold text with a separating `\quad`,
+so I've chosen to use title casing, as in `3  The Abstraction Theorem`, etc.
+I'd like to preserve the dot to produce `3. The Abstraction Theorem`,
+but as of `acmart` version 2.14, sectioning commands may not be redefined,
+as I previously did using the `titlesec` package and `\titlelabel{\thetitle.\quad}` command.
+If you have any workaround suggestions, please do open an issue or pull request.
+
 ### On the TeX source
 
 * Use a new line for each new sentence and for each clause after a colon
