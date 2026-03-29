@@ -5,7 +5,6 @@
 
 \usepackage[runin]{abstract}
 \usepackage{enumitem}
-\usepackage{parskip}
 \usepackage{xspace}
 \usepackage{tikz-cd}
 \usepackage{stmaryrd}
@@ -20,6 +19,7 @@
 \allowdisplaybreaks
 \theoremstyle{plain}
 \setcitestyle{acmnumeric,nosort}
+\setlength{\parindent}{0pt}
 \setlength{\fboxsep}{0pt}
 \setlength{\headheight}{29.24403pt} % warning from fancyhdr
 
@@ -114,6 +114,8 @@
 
 \maketitle
 \thispagestyle{first}
+
+\setlength{\parskip}{.5\baselineskip plus 2pt}
 
 \begin{abstract}
   We explore the thesis that type structure is a syntactic discipline for maintaining levels of abstraction.
