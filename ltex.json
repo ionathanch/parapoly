@@ -1,0 +1,46 @@
+{
+  "ltex": {
+    "language": "en-US",
+    "dictionary": {
+      "en-US": [
+        "IFIP",
+        "builtin",
+        "iff",
+        "overdefined",
+        "multinary",
+        "intuitionistic",
+        "arities",
+        "desugaring",
+        "noninjective",
+        "Plotkin",
+        "Leivant",
+        "Kripke",
+        "Kripke-like"
+      ]
+    },
+    "disabledRules": {
+      "en-US": [
+        "WHITESPACE_RULE",
+        "SENT_START_CONJUNCTIVE_LINKING_ADVERB_COMMA",
+        "WHETHER"
+      ]
+    },
+    "hiddenFalsePositives": {
+      "en-US": [
+        {"rule": "MORFOLOGIK_RULE_EN_US",    "sentence": "iff"},
+        {"rule": "PLURAL_THAT_AGREEMENT",    "sentence": "type expressions that parallels"},
+        {"rule": "THE_SUPERLATIVE",          "sentence": "a least element"},
+        {"rule": "UPPERCASE_SENTENCE_START", "sentence": "and the semantics of the conditional expression"}
+      ]
+    },
+    "latex": {
+      "commands": {
+        "\\settopmatter{}": "ignore",
+        "\\author{}": "ignore",
+        "\\ar{}": "ignore"
+      },
+      "environments": {
+      }
+    }
+  }
+}
