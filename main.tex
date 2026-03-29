@@ -5,6 +5,7 @@
 
 \usepackage[runin]{abstract}
 \usepackage{enumitem}
+\usepackage{titlesec}
 \usepackage{xspace}
 \usepackage{tikz-cd}
 \usepackage{stmaryrd}
@@ -17,11 +18,12 @@
 \makeatother
 
 \allowdisplaybreaks
+\titlelabel{\thetitle.\quad}
 \theoremstyle{plain}
 \setcitestyle{acmnumeric,nosort}
 \setlength{\parindent}{0pt}
 \setlength{\fboxsep}{0pt}
-\setlength{\headheight}{29.24403pt} % warning from fancyhdr
+\setlength{\headheight}{29.26404pt} % warning from fancyhdr
 
 \DeclarePairedDelimiter{\set}{\{}{\}}
 \DeclarePairedDelimiter{\pair}{\langle}{\rangle}
